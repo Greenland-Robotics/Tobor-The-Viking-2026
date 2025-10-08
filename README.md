@@ -1,6 +1,13 @@
 # Greenland Robotics Framework: Documentation
 
 ## Notes
+- When writing your opmodes, always include the line `///@author <your-name>` just above the `@TeleOp` or `@Autonomous` annotation. This provides clean documentation about who wrote the opmode, which is useful for collaborative purposes and knowing who to blame when something goes wrong. Jokes aside, it is very important when collaborating on code to sign your work.
+  - Example:
+    ```java
+    ///@author Josh Kelley
+    @TeleOp(name = "My TeleOp")
+    public class MyTeleOp extends TeleOpBase {...}
+    ```
 - If you are using the PlayStation controllers, use the button map below
   | PlayStation    | Gamepad(in code) |
   | -------------- | ---------------- |
@@ -8,6 +15,8 @@
   | O              | B                |
   | △              | Y                |
   | □              | X                |
+  
+  For example: `gamepad1.a` will be automatically mapped to the X button on the PlayStation controller
 - In TeleOp, the following buttons are in use by the `implementDriveLogic()` method(gamepad1 only)
   - `left_stick_x`
   - `left_stick_y`
@@ -15,7 +24,7 @@
   - `right_bumper`
   - `left_trigger`
   - `right_trigger`<br>
-  by using these in your teleop code, that one action will control both the driving and whatever you mapped it to
+  by using these in your teleop code, that one action will control both the driving and whatever you mapped it to. If you want to change these, navigate to gcsrobotics/framework/TeleOpBase, and find the `implementDriveLogic()`. There you can change all of the buttons.
 
 # Method Documentation
 This documentation covers **all classes and methods** in `TeamCode/src/main/java/gcsrobotics/framework` for the GreenlandRoboticsFramework.  
@@ -28,16 +37,53 @@ It includes explanations for:
 
 ## Table of Contents
 
+- [`OpModeBase`](#opmodebase)
 - [`AutoBase`](#autobase)
+- [`TeleOpBase`](#teleopbase)
 - [`Constants`](#constants)
 - [`DcMotorEnhanced`](#dcmotorenhanced)
 - [`GoBildaPinpointDriver`](#gobildapinpointdriver)
-- [`OpModeBase`](#opmodebase)
-- [`TeleOpBase`](#teleopbase)
-
 ---
 
+## OpModeBase
+
+**Purpose:**  
+Abstract base for all OpModes (autonomous or teleop).  
+Handles hardware initialization and provides access to motors, servos, and odometry.
+
+### Key Properties
+- Necessary
+  - `fl`, `fr`, `bl`, `br` — Drivetrain motors (`DcMotorEnhanced`)
+  - `odo` — Odometry computer (`GoBildaPinpointDriver`)
+- Examples(Not needed)
+  - `arm` — Arm motor (`DcMotorEnhanced`)
+  - `claw` — Claw servo
+
+### Main Methods
+
+### `public double getX()`, `public double getY()`, and `public double getAngle()`
+These do exactly what they look like, return the x, y, or angle of the robot, respectively, according to the GoBilda Pinpoint.
+Having these in OpModeBase means you can call these methods in any Auto or TeleOp.
+
+#### `private void initHardware()`
+Initializes all hardware.  You will need to modify this method for your specific robot. Look at the current one for examples
+- Configures motor/servo objects, odometry, directions.
+<br>
+
+
+The following are **internal** methods. You won't interact with them or have to worry about them.
+#### `protected abstract void runInit()`
+Override for code to run in `init` phase.
+
+#### `protected abstract void run()`
+Override for code to run once `start` is pressed.
+
+#### `public void runOpMode()`
+Main entrypoint for OpMode.  
+- Sets up telemetry, hardware, runs `runInit()`, waits for start, then runs `run()`.
+---
 ## AutoBase
+
 
 **Purpose:**  
 `AutoBase` is an abstract class for autonomous robot operation modes.  
@@ -51,21 +97,40 @@ It extends `OpModeBase`, providing accurate movement utilities and control struc
 - Use movement methods like `path()`, `chain()`, `simpleDrive()`.
 
 ### Key Methods
+#### Note
+What does it mean to "Override" a function? Overriding just means implementing your own logic in a method, even if it is already defined. Here is what it looks like:
+```java
+@Override //Not strictly needed but recommended for readability purposes
+protected void predefinedMethod(){
+  // Example logic you might perform
+  doSomeTask()
+  doAnotherTask()
+}
+```
+The reason these are overriden is because they are already used by the parent class of the opmode, eg. `AutoBase`, but **YOU** have to tell it what that method actually does.
 
 #### `protected void initSequence()`
 Override to add code you want to run in the `init` phase.
+Example:
+```java
+@Override
+protected void initSequence(){
+  //Your init logic
+}
+```
 
 #### `protected abstract void runSequence()`
 Override to define the autonomous actions (your main logic).
 
-#### `protected void simpleDrive(Axis direction, double power, int time)`
-Moves the robot simply in the specified `direction` ("vertical" or "horizontal") at a set power for a duration.
+#### `protected void simpleDrive(Axis direction, double power, int milliseconds)`
+Moves the robot simply in the specified `Axis` at a set power for a duration. The options for `Axis` are `Axis.X`(forward & back) and `Axis.Y`(left & right)
 - **Use:** For short, direct movements (e.g., nudging into position).
 - **Example:** `simpleDrive(Axis.X, 0.5, 1000);`
 
 #### `protected void setPowers(double power)`
 Sets all drive motors to the same power.
 - **Use:** To move all wheels together, usually straight.
+- **Example:** `setPowers(0.5)`
 
 #### `protected void wait(int milliseconds)`
 Pauses execution for a number of milliseconds, updating odometry and telemetry.
@@ -74,15 +139,18 @@ Pauses execution for a number of milliseconds, updating odometry and telemetry.
 #### `protected void path(int targetX, int targetY, Axis forgiveAxis = Axis.NONE)`
 Accurate movement to a coordinate (`targetX`, `targetY`) with optional axis forgiveness.
 - **Use:** For precise autonomous positioning.
-- **`forgiveAxis`:** `Axis.X` or `'Axis.Y'` if you want to ignore error on that axis (e.g., just get close horizontally).
+- **`forgiveAxis`:** `Axis.X` or `'Axis.Y'`. This is used if you don't care about a certain axis being totally accurate before moving on. This **doesn't** mean it doesn't move along that axis, but it is not a factor in when the path ends and moves onto the next piece of logic.
+- **Example:** `path(100,200)` or `path(100,200,Axis.X)`
 
-#### `protected void chain(int targetX, int targetY, char forgiveAxis = ' ')`
+#### `protected void chain(int targetX, int targetY, Axis forgiveAxis = 'Axis.NONE')`
 Fast movement to a coordinate (less accurate than `path`).
 - **Use:** When speed is more important than precision.
-
+- **Example:** `chain(100,200)` or `chain(100,200,Axis.X)`
+- 
 #### `protected void waitUntil(@NonNull Supplier<Boolean> condition)`
 Waits until a given condition is true.
 - **Use:** For waiting on asynchronous events or sensor thresholds.
+- **Example:** `waitUntil(() -> colorSensor.red() > 200)`. This is fake logic, but the idea is you put your condition right after the `() -> `
 
 #### **Private Utility Methods**  
 **You don't need to worry about these, they are internal**
@@ -96,9 +164,37 @@ Waits until a given condition is true.
   Stops all drive motors.
 - `notStuck(double targetX, double targetY)`
   Detects if the robot is stuck (not making progress).
-- `getX(), getY(), getAngle()`
-  Return current robot position/heading from odometry.
+---
 
+## TeleOpBase
+
+**Purpose:**  
+Base for teleop OpModes.  
+Implements drive logic and framework for teleop control.
+
+### Key Methods
+
+#### `protected void runInit()`
+- Sets drivetrain motors to `RUN_WITHOUT_ENCODER` (faster for teleop).
+- Calls `inInit()` for your custom init code.
+
+#### `protected void run()`
+- Repeatedly calls `runLoop()` while OpMode is active.
+
+#### `protected abstract void runLoop()`
+Override to add the main teleop loop logic.
+
+#### `protected abstract void inInit()`
+Override to add code for the `init` phase of teleop.
+
+#### `protected void setSpeed(double speed)`
+- Set the drive speed multiplier.
+- **Example:** `setSpeed(0.5) //Sets speed to half power`
+
+#### `protected void implementDriveLogic()`
+- Implements full mecanum drive logic using gamepads.
+- Handles horizontal locking, slow mode, and trigger overrides.
+- **Use:** Call this in your `runLoop()` to handle all drive movement.
 ---
 
 ## Constants
@@ -110,7 +206,7 @@ Central location for tunable constants (motor positions, PID values, setpoints, 
   **Example fields that many teams may use, feel free to delete them if they are unnecessary**
 - `clawClose`, `clawOpen`: Servo positions for the claw.
 - `armUp`, `armMiddle`, `armDown`: Encoder positions for arm levels.
-- `wristUp`, `wristDown`: Servo positions for wrist.
+- `wristUp`, `wristDown`: Servo positions for a wrist.
 <br><br>
   **These fields are required, and are needed for basic functions. Do NOT delete these.**
 - `ENCODER_TOLERANCE`: How close an encoder must be to target to count as "there".
@@ -134,9 +230,11 @@ A wrapper around FTC's `DcMotor` providing easier position control, power manage
 #### Position Control
 
 - `setPosAndWait(int targetPosition, OpModeBase opmode)`
-  - Moves to a position at default speed, waits until there.
+  - Moves to a position at default speed, waits until there. Moves at the preset default speed
+  - **Example:** `setPosAndWait(500, this)` The reason you add the `this` is complicated, just do it
 - `setPosAndWait(int targetPosition, double speed, OpModeBase opmode)`
   - Moves to a position at given speed, waits until there.
+  - **Example:** `setPosAndWait(500,0.7,this)` Make sure to add `this`
 - `setPosition(int targetPosition)`
   - Go to position at default speed (doesn’t wait).
 - `setPosition(int targetPosition, double speed)`
@@ -145,16 +243,18 @@ A wrapper around FTC's `DcMotor` providing easier position control, power manage
 #### Speed & Power
 
 - `setDefaultSpeed(double speed)`, `getDefaultSpeed()`
-- `setPower(double power)`, `getPower()`
+- `setPower(double power)`, `getPower()`. Note, this will override the motor mode to `DcMotor.RunMode.RUN_WITHOUT_ENCODER`
 
 #### Encoder & State
 
 - `reset()`  
-  Resets encoder, restoring previous mode.
+  Resets encoder to 0.
 - `isAtTarget()`  
   Returns true if within `ENCODER_TOLERANCE` of target.
 - `getCurrentPosition()`
+  Return the encoder position
 - `isBusy()`
+  Returns true if moving
 
 #### Run Modes & Directions
 
@@ -170,6 +270,7 @@ A wrapper around FTC's `DcMotor` providing easier position control, power manage
 ---
 
 ## GoBildaPinpointDriver
+### Look at `PinpointDocumentation.md` for more info
 
 **Purpose:**  
 Driver for the goBILDA® Pinpoint Odometry Computer.  
@@ -237,68 +338,6 @@ Handles communication, configuration, and reading robot pose/velocity.
 
 ---
 
-## OpModeBase
-
-**Purpose:**  
-Abstract base for all OpModes (autonomous or teleop).  
-Handles hardware initialization and provides access to motors, servos, and odometry.
-
-### Key Properties
-
-- `fl`, `fr`, `bl`, `br` — Drivetrain motors (`DcMotorEnhanced`)
-- `arm` — Arm motor (`DcMotorEnhanced`)
-- `claw` — Claw servo
-- `odo` — Odometry computer (`GoBildaPinpointDriver`)
-
-### Main Methods
-
-#### `protected abstract void runInit()`
-Override for code to run in `init` phase.
-
-#### `protected abstract void run()`
-Override for code to run once `start` is pressed.
-
-#### `private void initHardware()`
-Initializes all hardware.  
-- Configures motor/servo objects, odometry, directions.
-
-#### `public void runOpMode()`
-Main entrypoint for OpMode.  
-- Sets up telemetry, hardware, runs `runInit()`, waits for start, then runs `run()`.
-
----
-
-## TeleOpBase
-
-**Purpose:**  
-Base for teleop OpModes.  
-Implements drive logic and framework for teleop control.
-
-### Key Methods
-
-#### `protected void runInit()`
-- Sets drivetrain motors to `RUN_WITHOUT_ENCODER` (faster for teleop).
-- Calls `inInit()` for your custom init code.
-
-#### `protected void run()`
-- Repeatedly calls `runLoop()` while OpMode is active.
-
-#### `protected abstract void runLoop()`
-Override to add the main teleop loop logic.
-
-#### `protected abstract void inInit()`
-Override to add code for the `init` phase of teleop.
-
-#### `protected void setSpeed(double speed)`
-- Set the drive speed multiplier.
-
-#### `protected void implementDriveLogic()`
-- Implements full mecanum drive logic using gamepads.
-- Handles horizontal locking, slow mode, and trigger overrides.
-- **Use:** Call this in your `runLoop()` to handle all drive movement.
-
----
-
 # How to Use This Framework
 
 1. **Create an OpMode** (autonomous: extend `AutoBase`; teleop: extend `TeleOpBase`)
@@ -314,5 +353,6 @@ Override to add code for the `init` phase of teleop.
 - Each class and method is documented with purpose, usage, and scenarios.
 - For detailed code reference, see the .java files.
 - For FTC SDK integration, see [FTC documentation](https://ftc-docs.firstinspires.org/).
-- If nothing else works, **ask Josh**. 
+- If you can't find info about something or you need a quick answer, use GitHub Copilot with this codebase attached for info.
+- If nothing else works, ask Josh. 
 

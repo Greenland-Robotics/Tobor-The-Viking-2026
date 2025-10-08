@@ -20,26 +20,26 @@ public class DriveTuner extends AutoBase {
 
             //Test vertically with a long distance
             if(gamepad1.y){
-                path(400,0);
+                path(48,0);
                 resetPosition();
             }
 
             //Test vertically with a short distance
             if(gamepad1.a){
-                path(200,0);
+                path(24,0);
                 resetPosition();
             }
 
 
             //Test horizontally with a long distance
             if(gamepad1.x){
-                path(0,400);
+                path(0,48);
                 resetPosition();
             }
 
             //Test horizontally with a short distance
             if(gamepad1.b){
-                path(0,200);
+                path(0,24);
                 resetPosition();
             }
 

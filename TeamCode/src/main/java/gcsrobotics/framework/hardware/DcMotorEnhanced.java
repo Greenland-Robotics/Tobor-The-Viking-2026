@@ -49,9 +49,7 @@ public class DcMotorEnhanced {
     public double getDefaultSpeed(){return DEFAULT_SPEED;}
 
     public void reset(){
-        DcMotor.RunMode temp = motor.getMode();
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(temp);
     }
 
     public boolean isAtTarget() {
@@ -60,6 +58,7 @@ public class DcMotorEnhanced {
 
     // === Forward motor control with minimal effort ===
     public void setPower(double power) {
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setPower(power);
     }
 
