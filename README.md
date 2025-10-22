@@ -25,7 +25,13 @@
   - `left_trigger`
   - `right_trigger`<br>
   by using these in your teleop code, that one action will control both the driving and whatever you mapped it to. If you want to change these, navigate to gcsrobotics/framework/TeleOpBase, and find the `implementDriveLogic()`. There you can change all of the buttons.
-
+## Where is my code?
+All code is under `TeamCode/src/main/java/gcsrobotics/`. Here you will find 4 packages
+- `examples`: Example opmodes and programs that show how to use the framework for Autos and TeleOps
+- `framework`: The base code for methods and not opmode-specific code. You will only go here to change the Constants.java file and your hardware configuration
+  - `hardware`: Hardware specific code for subsystems, wrappers and drivers. You will almost never need to interact with this package
+- `opmodes`: This is where your opmodes will reside. It is the only package where you can change anything and make it your own
+- `tuners`: Opmodes for tuning hardware and debugging. You will generally not put anything in here unless you write an opmode to tune a specific subsystem
 # Method Documentation
 This documentation covers **all classes and methods** in `TeamCode/src/main/java/gcsrobotics/framework` for the GreenlandRoboticsFramework.  
 It includes explanations for:  

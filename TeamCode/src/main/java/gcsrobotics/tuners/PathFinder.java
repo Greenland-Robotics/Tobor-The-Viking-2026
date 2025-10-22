@@ -11,7 +11,7 @@ public class PathFinder extends TeleOpBase {
     protected void inInit() {
         resetPosition();
         telemetry.addLine("Use this to find positions on the field");
-
+        telemetry.update();
     }
 
     @Override
