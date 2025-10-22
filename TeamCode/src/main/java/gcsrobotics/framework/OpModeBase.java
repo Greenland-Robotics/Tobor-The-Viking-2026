@@ -33,10 +33,10 @@ public abstract class OpModeBase extends LinearOpMode {
             fr = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "fr"));
             bl = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "bl"));
             br = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "br"));
-            arm = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "arm"));
+//            arm = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "arm"));
 
 
-            claw = new Claw(hardwareMap.get(Servo.class, "claw"));
+//            claw = new Claw(hardwareMap.get(Servo.class, "claw"));
 
             odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
 
