@@ -1,11 +1,7 @@
 package gcsrobotics.framework;
 
-import static gcsrobotics.framework.Constants.xPodDirection;
-import static gcsrobotics.framework.Constants.yPodDirection;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -49,15 +45,15 @@ public abstract class OpModeBase extends LinearOpMode {
         }
 
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        odo.setEncoderDirections(xPodDirection, yPodDirection);
+        odo.setEncoderDirections(Constants.xPodDirection, Constants.yPodDirection);
         odo.resetPosAndIMU();
 
         //TODO: Set motor directions. Some motors will be reversed, so you must change that here
         //Note: Typically the right side is reversed, but change it as you need
-        fl.setDirection(DcMotorSimple.Direction.FORWARD);
-        fr.setDirection(DcMotorSimple.Direction.REVERSE);
-        bl.setDirection(DcMotorSimple.Direction.FORWARD);
-        br.setDirection(DcMotorSimple.Direction.REVERSE);
+        fl.setDirection(Constants.flDirection);
+        fr.setDirection(Constants.frDirection);
+        bl.setDirection(Constants.blDirection);
+        br.setDirection(Constants.brDirection);
     }
 
 

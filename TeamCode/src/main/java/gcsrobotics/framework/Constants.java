@@ -1,6 +1,8 @@
 package gcsrobotics.framework;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import gcsrobotics.framework.hardware.GoBildaPinpointDriver;
 
@@ -19,6 +21,12 @@ public class Constants {
     public static double wristDown;
     public static int ENCODER_TOLERANCE;
     public static double autoMaxPower;
+
+    public static DcMotorSimple.Direction flDirection;
+    public static DcMotorSimple.Direction frDirection;
+    public static DcMotorSimple.Direction blDirection;
+    public static DcMotorSimple.Direction brDirection;
+
     public static GoBildaPinpointDriver.EncoderDirection xPodDirection;
     public static GoBildaPinpointDriver.EncoderDirection yPodDirection;
 
@@ -52,6 +60,11 @@ public class Constants {
 
 
         ENCODER_TOLERANCE = 10;
+
+        flDirection = DcMotorSimple.Direction.REVERSE;
+        frDirection = DcMotorSimple.Direction.FORWARD;
+        blDirection = DcMotorSimple.Direction.REVERSE;
+        brDirection = DcMotorSimple.Direction.FORWARD;
 
         //Reverse this if going forward makes the x coordinate go down
         xPodDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
