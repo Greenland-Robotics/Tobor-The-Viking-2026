@@ -25,16 +25,15 @@ public abstract class OpModeBase extends LinearOpMode {
     private void initHardware(){
         //TODO: Update this config for your robot
         try {
-            fl = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "fl"));
-            fr = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "fr"));
-            bl = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "bl"));
-            br = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "br"));
-//            arm = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "arm"));
-
-
-//            claw = new Claw(hardwareMap.get(Servo.class, "claw"));
-
+            fl = new DcMotorEnhanced("fl", hardwareMap);
+            fr = new DcMotorEnhanced("fr", hardwareMap);
+            bl = new DcMotorEnhanced("bl", hardwareMap);
+            br = new DcMotorEnhanced("br", hardwareMap);
             odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+
+            // Example
+//          arm = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "arm"));
+//          claw = new Claw(hardwareMap.get(Servo.class, "claw"));
 
         }catch (NullPointerException e){
             telemetry.addData("Error",e.getMessage());

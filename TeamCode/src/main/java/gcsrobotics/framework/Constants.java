@@ -1,7 +1,6 @@
 package gcsrobotics.framework;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import gcsrobotics.framework.hardware.GoBildaPinpointDriver;
@@ -19,6 +18,7 @@ public class Constants {
     public static int armDown;
     public static double wristUp;
     public static double wristDown;
+    public static double GLOBAL_DEFAULT_MOTOR_SPEED;
     public static int ENCODER_TOLERANCE;
     public static double autoMaxPower;
 
@@ -60,6 +60,7 @@ public class Constants {
 
 
         ENCODER_TOLERANCE = 10;
+        GLOBAL_DEFAULT_MOTOR_SPEED = 1;
 
         flDirection = DcMotorSimple.Direction.REVERSE;
         frDirection = DcMotorSimple.Direction.FORWARD;

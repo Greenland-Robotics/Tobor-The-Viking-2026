@@ -1,22 +1,23 @@
 package gcsrobotics.framework.hardware;
-
+import static gcsrobotics.framework.Constants.GLOBAL_DEFAULT_MOTOR_SPEED;
 import static gcsrobotics.framework.Constants.ENCODER_TOLERANCE;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import gcsrobotics.framework.OpModeBase;
 @SuppressWarnings("unused")
 public class DcMotorEnhanced {
     private final DcMotor motor;
-    private double DEFAULT_SPEED = 1;
+    private double DEFAULT_SPEED;
 
-    public DcMotorEnhanced(DcMotor motor) {
-        this.motor = motor;
+    public DcMotorEnhanced(String name, HardwareMap hardwareMap) {
+        this(name, GLOBAL_DEFAULT_MOTOR_SPEED, hardwareMap);
     }
 
-    public DcMotorEnhanced(DcMotor motor, double DEFAULT_SPEED){
-        this.motor = motor;
+    public DcMotorEnhanced(String name, double DEFAULT_SPEED, HardwareMap hardwareMap){
+        this.motor = hardwareMap.get(DcMotor.class, name);
         this.DEFAULT_SPEED = DEFAULT_SPEED;
     }
 

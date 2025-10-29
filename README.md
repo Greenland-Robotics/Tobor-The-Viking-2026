@@ -145,10 +145,10 @@ Pauses execution for a number of milliseconds, updating odometry and telemetry.
 #### `protected void path(int targetX, int targetY, Axis forgiveAxis = Axis.NONE)`
 Accurate movement to a coordinate (`targetX`, `targetY`) with optional axis forgiveness.
 - **Use:** For precise autonomous positioning.
-- **`forgiveAxis`:** `Axis.X` or `'Axis.Y'`. This is used if you don't care about a certain axis being totally accurate before moving on. This **doesn't** mean it doesn't move along that axis, but it is not a factor in when the path ends and moves onto the next piece of logic.
+- **`forgiveAxis`:** `Axis.X` or `Axis.Y`. This is used if you don't care about a certain axis being totally accurate before moving on. This **doesn't** mean it doesn't move along that axis, but it is not a factor in when the path ends and moves onto the next piece of logic.
 - **Example:** `path(100,200)` or `path(100,200,Axis.X)`
 
-#### `protected void chain(int targetX, int targetY, Axis forgiveAxis = 'Axis.NONE')`
+#### `protected void chain(int targetX, int targetY, Axis forgiveAxis = Axis.NONE)`
 Fast movement to a coordinate (less accurate than `path`).
 - **Use:** When speed is more important than precision.
 - **Example:** `chain(100,200)` or `chain(100,200,Axis.X)`
@@ -216,8 +216,10 @@ Central location for tunable constants (motor positions, PID values, setpoints, 
 <br><br>
   **These fields are required, and are needed for basic functions. Do NOT delete these.**
 - `ENCODER_TOLERANCE`: How close an encoder must be to target to count as "there".
-- `KpDrive`, `KdDrive`, `KpTurn`, `KdTurn`: PID coefficients for drive and turn control.
+- `KpDrive`, `KdDrive`, `KpTurn`: PID coefficients for drive and turn control.
 - `autoMaxPower`: Max drive power for autonomous.
+- `flDirection`,`frDirection`,`blDirection`,`brDirection`: Motor directions
+- `xPodDirection`, `yPodDirection`: Direction of the GoBilda Pinpoint Odometry pods
 - **All constants are static and can be tuned live with FTC Dashboard.**
 
 ---
@@ -237,10 +239,10 @@ A wrapper around FTC's `DcMotor` providing easier position control, power manage
 
 - `setPosAndWait(int targetPosition, OpModeBase opmode)`
   - Moves to a position at default speed, waits until there. Moves at the preset default speed
-  - **Example:** `setPosAndWait(500, this)` The reason you add the `this` is complicated, just do it
+  - **Example:** `setPosAndWait(500, this)` The reason you add the `this` has to do with allowing the motor to control the control loop of the opMode.
 - `setPosAndWait(int targetPosition, double speed, OpModeBase opmode)`
   - Moves to a position at given speed, waits until there.
-  - **Example:** `setPosAndWait(500,0.7,this)` Make sure to add `this`
+  - **Example:** `setPosAndWait(500,0.7,this)// Make sure to include this`
 - `setPosition(int targetPosition)`
   - Go to position at default speed (doesn’t wait).
 - `setPosition(int targetPosition, double speed)`
@@ -249,14 +251,14 @@ A wrapper around FTC's `DcMotor` providing easier position control, power manage
 #### Speed & Power
 
 - `setDefaultSpeed(double speed)`, `getDefaultSpeed()`
-- `setPower(double power)`, `getPower()`. Note, this will override the motor mode to `DcMotor.RunMode.RUN_WITHOUT_ENCODER`
+- `setPower(double power)`, `getPower()`. Note, this will override the motor mode to `DcMotor.RunMode.RUN_WITHOUT_ENCODER`. It will be set back when calling an encoder-based action like setPosition()
 
 #### Encoder & State
 
 - `reset()`  
-  Resets encoder to 0.
+  Resets encoder to 0. Will stop the motor to reset.
 - `isAtTarget()`  
-  Returns true if within `ENCODER_TOLERANCE` of target.
+  Returns true if within `Constants.ENCODER_TOLERANCE` of target.
 - `getCurrentPosition()`
   Return the encoder position
 - `isBusy()`
@@ -264,15 +266,20 @@ A wrapper around FTC's `DcMotor` providing easier position control, power manage
 
 #### Run Modes & Directions
 
-- `setMode(DcMotor.RunMode mode)`, `getMode()`
-- `setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior)`, `getZeroPowerBehavior()`
-- `setDirection(DcMotorSimple.Direction direction)`, `getDirection()`
+- `setMode(DcMotor.RunMode mode)`, `getMode()`  
+  - Options:
+  - `RUN_WITHOUT_ENCODER`
+  - `RUN_USING_ENCODER`
+  - `RUN_TO_POSITION`
+  - `STOP_AND_RESET_ENCODER`
+
+- `setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior)`, `getZeroPowerBehavior()` Sets how the motor acts when no power is applied `BRAKE` or `FLOAT`
+- `setDirection(DcMotorSimple.Direction direction)`, `getDirection()` `FORWARD` or `REVERSE`
 
 #### Base Access
 
 - `getBaseMotor()`  
-  Returns the raw underlying `DcMotor`.
-
+  Returns the raw underlying `DcMotor`. It is very rate you will need to access this
 ---
 
 ## GoBildaPinpointDriver
