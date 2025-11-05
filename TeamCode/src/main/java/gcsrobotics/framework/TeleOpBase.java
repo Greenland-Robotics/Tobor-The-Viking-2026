@@ -81,6 +81,7 @@ public abstract class TeleOpBase extends OpModeBase {
         if(button && !tempButton){
             fieldCentric = !fieldCentric;
             tempButton = true;
+            gamepad1.rumble(400);
         }else tempButton = false;
     }
 

@@ -1,7 +1,6 @@
 package gcsrobotics.framework;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -30,10 +29,6 @@ public abstract class OpModeBase extends LinearOpMode {
             bl = new DcMotorEnhanced("bl", hardwareMap);
             br = new DcMotorEnhanced("br", hardwareMap);
             odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
-
-            // Example
-//          arm = new DcMotorEnhanced(hardwareMap.get(DcMotor.class, "arm"));
-//          claw = new Claw(hardwareMap.get(Servo.class, "claw"));
 
         }catch (NullPointerException e){
             telemetry.addData("Error",e.getMessage());

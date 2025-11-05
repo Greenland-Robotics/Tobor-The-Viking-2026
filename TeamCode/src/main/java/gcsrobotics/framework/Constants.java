@@ -8,30 +8,36 @@ import gcsrobotics.framework.hardware.GoBildaPinpointDriver;
 /// <strong>A class that holds all of the robot constants</strong>
 @Config("Robot Constants") //This Config tag allows for these values to be tuned in real time using the dashboard
 public class Constants {
-    public static double clawClose;
-    public static double clawOpen;
-    public static double KpDrive;
-    public static double KdDrive;
-    public static double KpTurn;
-    public static int armUp;
-    public static int armMiddle;
-    public static int armDown;
-    public static double wristUp;
-    public static double wristDown;
-    public static double GLOBAL_DEFAULT_MOTOR_SPEED;
-    public static int ENCODER_TOLERANCE;
-    public static double autoMaxPower;
+    public final static double clawClose;
+    public final static double clawOpen;
+    public final static double KpDrive;
+    public final static double KdDrive;
+    public final static double KpTurn;
 
-    public static DcMotorSimple.Direction flDirection;
-    public static DcMotorSimple.Direction frDirection;
-    public static DcMotorSimple.Direction blDirection;
-    public static DcMotorSimple.Direction brDirection;
+    public final static double PATH_TOLERANCE_MM;
+    public final static double CHAIN_TOLERANCE_MM;
+    public final static double TURN_TOLERANCE_DEG;
+    public final static double PATH_SETTLE_TIME_MS;
+    public final static double TURN_SETTLE_TIME_MS;
+    public final static double PATH_TIMEOUT_MS;
+    public final static int armUp;
+    public final static int armMiddle;
+    public final static int armDown;
+    public final static double wristUp;
+    public final static double wristDown;
+    public final static double GLOBAL_DEFAULT_MOTOR_SPEED;
+    public final static int ENCODER_TOLERANCE;
+    public final static double autoMaxPower;
 
-    public static GoBildaPinpointDriver.EncoderDirection xPodDirection;
-    public static GoBildaPinpointDriver.EncoderDirection yPodDirection;
+    public final static DcMotorSimple.Direction flDirection;
+    public final static DcMotorSimple.Direction frDirection;
+    public final static  DcMotorSimple.Direction blDirection;
+    public final static DcMotorSimple.Direction brDirection;
+
+    public final static GoBildaPinpointDriver.EncoderDirection xPodDirection;
+    public final static GoBildaPinpointDriver.EncoderDirection yPodDirection;
 
     static{
-
 
         /* Examples of constants
         --- Use this to set things like servo and motor positions ---
@@ -46,6 +52,12 @@ public class Constants {
         KdDrive = 0.001;
         KpTurn = 0.1;
 
+        PATH_TOLERANCE_MM = 20;
+        CHAIN_TOLERANCE_MM = 40;
+        TURN_TOLERANCE_DEG = 1.5;
+        PATH_SETTLE_TIME_MS = 100;
+        TURN_SETTLE_TIME_MS = 150;
+        PATH_TIMEOUT_MS = 3000;
 
         //More examples here
         armUp = 500;

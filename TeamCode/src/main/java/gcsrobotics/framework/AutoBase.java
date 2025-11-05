@@ -1,8 +1,14 @@
 package gcsrobotics.framework;
 
+import static gcsrobotics.framework.Constants.CHAIN_TOLERANCE_MM;
 import static gcsrobotics.framework.Constants.KdDrive;
 import static gcsrobotics.framework.Constants.KpDrive;
 import static gcsrobotics.framework.Constants.KpTurn;
+import static gcsrobotics.framework.Constants.PATH_SETTLE_TIME_MS;
+import static gcsrobotics.framework.Constants.PATH_TIMEOUT_MS;
+import static gcsrobotics.framework.Constants.PATH_TOLERANCE_MM;
+import static gcsrobotics.framework.Constants.TURN_SETTLE_TIME_MS;
+import static gcsrobotics.framework.Constants.TURN_TOLERANCE_DEG;
 import static gcsrobotics.framework.Constants.autoMaxPower;
 
 import androidx.annotation.NonNull;
@@ -94,9 +100,8 @@ public abstract class AutoBase extends OpModeBase {
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < milliseconds) {
-            telemetry.addLine("Waiting for " + (milliseconds - timer.milliseconds()));
+            telemetry.addLine(String.format("Waiting for %d milliseconds", (milliseconds - timer.milliseconds())));
             telemetry.update();
-            odo.update();
             sleep(50);
         }
     }
@@ -126,11 +131,11 @@ public abstract class AutoBase extends OpModeBase {
 
         while (opModeIsActive() && notStuck(targetX,targetY)) {
             double xError = targetX - getX();
-            double yError = targetY - getY();
+            double yError = -(targetY - getY()); //Set negative to compenstate
 
-            boolean atTarget = Math.abs(xError) < 20 && Math.abs(yError) < 20;
-            if (forgiveAxis == Axis.X) atTarget = Math.abs(yError) < 20;
-            else if (forgiveAxis == Axis.Y) atTarget = Math.abs(xError) < 20;
+            boolean atTarget = Math.abs(xError) < PATH_TOLERANCE_MM && Math.abs(yError) < PATH_TOLERANCE_MM;
+            if (forgiveAxis == Axis.X) atTarget = Math.abs(yError) < PATH_TOLERANCE_MM;
+            else if (forgiveAxis == Axis.Y) atTarget = Math.abs(xError) < PATH_TOLERANCE_MM;
 
             if (atTarget && !endSession) {
                 endSession = true;
@@ -139,7 +144,7 @@ public abstract class AutoBase extends OpModeBase {
                 endSession = false;
             }
 
-            if (endSession && endTimer.milliseconds() > 100) break;
+            if (endSession && endTimer.milliseconds() > PATH_SETTLE_TIME_MS) break;
 
             double xPower = pidDrivePower(xError, true);
             double yPower = pidDrivePower(yError, false);
@@ -172,11 +177,11 @@ public abstract class AutoBase extends OpModeBase {
     protected void chain(int targetX, int targetY, Axis forgiveAxis) {
         while (opModeIsActive() && notStuck(targetX,targetY)) {
             double xError = targetX - getX();
-            double yError = targetY - getY();
+            double yError = -(targetY - getY()); //Set negative to compensate
 
-            boolean atTarget = Math.abs(xError) < 40 && Math.abs(yError) < 40;
-            if (forgiveAxis == Axis.X) atTarget = Math.abs(yError) < 40;
-            else if (forgiveAxis == Axis.Y) atTarget = Math.abs(xError) < 40;
+            boolean atTarget = Math.abs(xError) < CHAIN_TOLERANCE_MM && Math.abs(yError) < CHAIN_TOLERANCE_MM;
+            if (forgiveAxis == Axis.X) atTarget = Math.abs(yError) < CHAIN_TOLERANCE_MM;
+            else if (forgiveAxis == Axis.Y) atTarget = Math.abs(xError) < CHAIN_TOLERANCE_MM;
 
             if (atTarget) break;
 
@@ -197,8 +202,6 @@ public abstract class AutoBase extends OpModeBase {
      * @param targetAngle the angle to turn to, in degrees (0 = field forward, CCW+)
      */
     protected void turn(double targetAngle) {
-        final double tolerance = 1.5; // Degrees within target to finish
-        final long settleTimeMillis = 150; // How long to be within tolerance (ms)
 
         this.targetAngle = targetAngle;
 
@@ -212,12 +215,12 @@ public abstract class AutoBase extends OpModeBase {
             double error = normalizeAngle(targetAngle - currentAngle);
 
             // Check if within tolerance to start settling
-            if (Math.abs(error) <= tolerance) {
+            if (Math.abs(error) <= TURN_TOLERANCE_DEG) {
                 if (!settling) {
                     settling = true;
                     settleTimer.reset();
                 }
-                if (settleTimer.milliseconds() >= settleTimeMillis) {
+                if (settleTimer.milliseconds() >= TURN_SETTLE_TIME_MS) {
                     break; // Done turning
                 }
             } else {
@@ -338,6 +341,7 @@ public abstract class AutoBase extends OpModeBase {
 
     /// Checks if the robot is not moving
     private boolean notStuck(double targetX, double targetY) {
+        //Apply the pythagorean theorem for total distance moved in both directions
         double currentDistance = Math.sqrt(Math.pow(targetX - getX(), 2) + Math.pow(targetY - getY(), 2));
 
         if (Math.abs(currentDistance - lastDistanceToTarget) > 5) {
@@ -346,7 +350,7 @@ public abstract class AutoBase extends OpModeBase {
             return true;
         }
 
-        return stuckTimer.seconds() < 3.0;
+        return stuckTimer.milliseconds() < PATH_TIMEOUT_MS;
     }
 
 
