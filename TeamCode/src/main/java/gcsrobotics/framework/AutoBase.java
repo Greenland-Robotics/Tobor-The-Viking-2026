@@ -1,12 +1,12 @@
 package gcsrobotics.framework;
 
-import static gcsrobotics.framework.Constants.CHAIN_TOLERANCE_MM;
+import static gcsrobotics.framework.Constants.CHAIN_TOLERANCE_IN;
 import static gcsrobotics.framework.Constants.KdDrive;
 import static gcsrobotics.framework.Constants.KpDrive;
 import static gcsrobotics.framework.Constants.KpTurn;
 import static gcsrobotics.framework.Constants.PATH_SETTLE_TIME_MS;
 import static gcsrobotics.framework.Constants.PATH_TIMEOUT_MS;
-import static gcsrobotics.framework.Constants.PATH_TOLERANCE_MM;
+import static gcsrobotics.framework.Constants.PATH_TOLERANCE_IN;
 import static gcsrobotics.framework.Constants.TURN_SETTLE_TIME_MS;
 import static gcsrobotics.framework.Constants.TURN_TOLERANCE_DEG;
 import static gcsrobotics.framework.Constants.autoMaxPower;
@@ -133,9 +133,9 @@ public abstract class AutoBase extends OpModeBase {
             double xError = targetX - getX();
             double yError = -(targetY - getY()); //Set negative to compenstate
 
-            boolean atTarget = Math.abs(xError) < PATH_TOLERANCE_MM && Math.abs(yError) < PATH_TOLERANCE_MM;
-            if (forgiveAxis == Axis.X) atTarget = Math.abs(yError) < PATH_TOLERANCE_MM;
-            else if (forgiveAxis == Axis.Y) atTarget = Math.abs(xError) < PATH_TOLERANCE_MM;
+            boolean atTarget = Math.abs(xError) < PATH_TOLERANCE_IN && Math.abs(yError) < PATH_TOLERANCE_IN;
+            if (forgiveAxis == Axis.X) atTarget = Math.abs(yError) < PATH_TOLERANCE_IN;
+            else if (forgiveAxis == Axis.Y) atTarget = Math.abs(xError) < PATH_TOLERANCE_IN;
 
             if (atTarget && !endSession) {
                 endSession = true;
@@ -179,9 +179,9 @@ public abstract class AutoBase extends OpModeBase {
             double xError = targetX - getX();
             double yError = -(targetY - getY()); //Set negative to compensate
 
-            boolean atTarget = Math.abs(xError) < CHAIN_TOLERANCE_MM && Math.abs(yError) < CHAIN_TOLERANCE_MM;
-            if (forgiveAxis == Axis.X) atTarget = Math.abs(yError) < CHAIN_TOLERANCE_MM;
-            else if (forgiveAxis == Axis.Y) atTarget = Math.abs(xError) < CHAIN_TOLERANCE_MM;
+            boolean atTarget = Math.abs(xError) < CHAIN_TOLERANCE_IN && Math.abs(yError) < CHAIN_TOLERANCE_IN;
+            if (forgiveAxis == Axis.X) atTarget = Math.abs(yError) < CHAIN_TOLERANCE_IN;
+            else if (forgiveAxis == Axis.Y) atTarget = Math.abs(xError) < CHAIN_TOLERANCE_IN;
 
             if (atTarget) break;
 

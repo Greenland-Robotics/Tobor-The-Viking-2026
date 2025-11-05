@@ -14,8 +14,8 @@ public class Constants {
     public final static double KdDrive;
     public final static double KpTurn;
 
-    public final static double PATH_TOLERANCE_MM;
-    public final static double CHAIN_TOLERANCE_MM;
+    public final static double PATH_TOLERANCE_IN;
+    public final static double CHAIN_TOLERANCE_IN;
     public final static double TURN_TOLERANCE_DEG;
     public final static double PATH_SETTLE_TIME_MS;
     public final static double TURN_SETTLE_TIME_MS;
@@ -52,8 +52,8 @@ public class Constants {
         KdDrive = 0.001;
         KpTurn = 0.1;
 
-        PATH_TOLERANCE_MM = 20;
-        CHAIN_TOLERANCE_MM = 40;
+        PATH_TOLERANCE_IN = 1;
+        CHAIN_TOLERANCE_IN = 3;
         TURN_TOLERANCE_DEG = 1.5;
         PATH_SETTLE_TIME_MS = 100;
         TURN_SETTLE_TIME_MS = 150;
