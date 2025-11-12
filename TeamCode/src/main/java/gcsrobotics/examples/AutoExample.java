@@ -14,7 +14,7 @@ public class AutoExample extends AutoBase /*This means it can access stuff from 
     // Include the @Override
     @Override
     protected void initSequence() {
-        claw.setPosition(clawClose);
+        claw.setPosition(0.5);
     }
 
     //Put all of your auto logic right in this method, runSequence()
@@ -24,7 +24,7 @@ public class AutoExample extends AutoBase /*This means it can access stuff from 
 
         // Example usage of setPosAndWait()
         // Be sure to include the this parameter after your desired position
-        arm.setPosAndWait(armUp,this);
+        arm.setPosAndWait(1000,this);
 
         // Example usage of the prebuilt path and chain methods
         // Specify any coordinate, and it will go there.
@@ -34,16 +34,16 @@ public class AutoExample extends AutoBase /*This means it can access stuff from 
         //Center a servo
         servo.setPosition(0.5);
         //Set the claw position to closed
-        claw.setPosition(clawOpen);
+        claw.setPosition(0);
         // Holds the execution for 100. Similar to sleep
         wait(100);
 
         //Example usage of opening the claw according to Constants.clawOpen
         claw.close();
-        arm.setPosition(armDown);
+        arm.setPosition(0);
         //Example usage of wait until, it looks different from the other methods,
         //but nothing is different. Just include the () -> and then your boolean value
-        waitUntil(() -> Math.abs(arm.getCurrentPosition() - armDown) < ENCODER_TOLERANCE);
+        waitUntil(() -> Math.abs(arm.getCurrentPosition() - 500) < ENCODER_TOLERANCE);
 
         //Example usage of opening the claw according to Constants.clawOpen
         claw.open();
@@ -51,7 +51,7 @@ public class AutoExample extends AutoBase /*This means it can access stuff from 
 
         // Move forward for 1 second. Make the power negative to go backwards
         simpleDrive(Axis.X,0.5,1000);
-        arm.setPosAndWait(armUp,0.9,this);
+        arm.setPosAndWait(2000,0.9,this);
         // Move right for 1 second. Make the power negative to go left
         simpleDrive(Axis.Y, 0.5, 1000);
     }

@@ -26,12 +26,12 @@ public class ServoTuner extends OpModeBase {//Replace this with the name that yo
     protected void run(){
         while(opModeIsActive()) {
             if (gamepad1.right_bumper && canTick) {
-                servoPos += servoPos + 0.01 >= 1 ? 0 : 0.01;
+                servoPos += servoPos + 0.01 > 1 ? 0 : 0.01;
 
                 canTick = false;
 
             } else if (gamepad1.left_bumper && canTick) {
-                servoPos -= servoPos - 0.01 <= 0 ? 0 : 0.01;
+                servoPos -= servoPos - 0.01 < 0 ? 0 : 0.01;
                 canTick = false;
 
             } else canTick = true;

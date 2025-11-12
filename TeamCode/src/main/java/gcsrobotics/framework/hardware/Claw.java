@@ -1,8 +1,5 @@
 package gcsrobotics.framework.hardware;
 
-import static gcsrobotics.framework.Constants.clawClose;
-import static gcsrobotics.framework.Constants.clawOpen;
-
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 
@@ -108,20 +105,20 @@ public class Claw {
 
 
     /**
-     * Opens the claw according to the current Constants.clawOpen
+     * Opens the claw(with a placeholder value of 0)
      * @see Claw#close()
      */
     public void open(){
-        servo.setPosition(clawOpen);
+        servo.setPosition(0);
     }
 
 
     /**
-     * Closes the claw according to the current Constants.clawClose
+     * Closes the claw(with a placeholder value of 1)
      * @see Claw#open()
      */
     public void close(){
-        servo.setPosition(clawClose);
+        servo.setPosition(1);
     }
 
 

@@ -8,7 +8,6 @@ import gcsrobotics.framework.hardware.DcMotorEnhanced;
 public abstract class TeleOpBase extends OpModeBase {
 
     private double speed = 0.7;
-    private boolean tempButton = false;
     protected boolean fieldCentric = true;
 
     @Override
@@ -77,12 +76,14 @@ public abstract class TeleOpBase extends OpModeBase {
         br.setPower(speed * (-pivot + forward + strafe));
     }
 
+    /// Toggles fieldCentric mode, with a built in button debounce
     protected void toggleFieldCentric(boolean button){
-        if(button && !tempButton){
+        boolean noLock = true;
+        if(button && noLock){
             fieldCentric = !fieldCentric;
-            tempButton = true;
+            noLock = false;
             gamepad1.rumble(400);
-        }else tempButton = false;
+        }else noLock = true;
     }
 
 }

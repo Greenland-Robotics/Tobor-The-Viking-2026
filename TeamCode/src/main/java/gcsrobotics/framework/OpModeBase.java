@@ -77,17 +77,21 @@ public abstract class OpModeBase extends LinearOpMode {
 
 
     /// Getter method for the x coordinate
-    /// @return the current x coordinate
+    /// @return the current x coordinate, in inches
     protected double getX(){
         return odo.getX();
     }
 
     /// Getter method for the y coordinate
-    /// @return the current y coordinate
+    /// @return the current y coordinate, in inches
     protected double getY(){
         return odo.getY();
     }
 
+    /**
+     * Getter method for the heading(angle) of the robot, in degrees
+     * @return the current heading of the robot, in degrees
+    */
     protected double getAngle(){
         return odo.getAngle();
     }
