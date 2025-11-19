@@ -1,5 +1,6 @@
 package gcsrobotics.tuners;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import gcsrobotics.framework.AutoBase;
@@ -11,21 +12,15 @@ import gcsrobotics.framework.AutoBase;
  * @see OdoTuner
  */
 @TeleOp(name="Turn Tuner")
+@Config
 //@Disabled
 public class TurnTuner extends AutoBase {
 
+    public static int targetAngle = 0;
+
     protected void runSequence() {
         while (opModeIsActive()) {
-            if (gamepad1.b) {
-                turn(90);
-                resetPosition();
-            }
-
-            if (gamepad1.x) {
-                turn(180);
-                resetPosition();
-            }
-
+            turn(targetAngle);
         }
     }
 }

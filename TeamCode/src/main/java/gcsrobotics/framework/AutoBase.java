@@ -221,7 +221,7 @@ public abstract class AutoBase extends OpModeBase {
 
         while (opModeIsActive()) {
             double currentAngle = getAngle();
-            double error = normalizeAngle(targetAngle - currentAngle);
+            double error = -normalizeAngle(targetAngle - currentAngle); //Negative to compensate
 
             // Check if within tolerance to start settling
             if (Math.abs(error) <= TURN_TOLERANCE_DEG) {

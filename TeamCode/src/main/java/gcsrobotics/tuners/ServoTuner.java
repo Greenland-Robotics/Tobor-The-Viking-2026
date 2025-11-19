@@ -1,5 +1,6 @@
 package gcsrobotics.tuners;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -13,11 +14,11 @@ import gcsrobotics.framework.hardware.Claw;
 /// @see Servo#scaleRange(double min, double max)
 /// @see Claw#setLimits(double min,double max)
 @TeleOp(name="Servo Tuner")
+@Config
 //@Disabled
 public class ServoTuner extends OpModeBase {//Replace this with the name that you want to tune
 
-    private double servoPos = 0.5;
-    private boolean canTick = false;
+    public static double servoPos = 0.5;
     protected void runInit(){
         telemetry.addData("Status","Ready");
         telemetry.update();
@@ -25,16 +26,6 @@ public class ServoTuner extends OpModeBase {//Replace this with the name that yo
 
     protected void run(){
         while(opModeIsActive()) {
-            if (gamepad1.right_bumper && canTick) {
-                servoPos += servoPos + 0.01 > 1 ? 0 : 0.01;
-
-                canTick = false;
-
-            } else if (gamepad1.left_bumper && canTick) {
-                servoPos -= servoPos - 0.01 < 0 ? 0 : 0.01;
-                canTick = false;
-
-            } else canTick = true;
 
             telemetry.addData("Servo Position",servoPos);
             telemetry.update();

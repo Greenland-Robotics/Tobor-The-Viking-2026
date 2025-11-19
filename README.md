@@ -28,10 +28,20 @@
 ## Where is my code?
 All code is under `TeamCode/src/main/java/gcsrobotics/`. Here you will find 4 packages
 - `examples`: Example opmodes and programs that show how to use the framework for Autos and TeleOps
-- `framework`: The base code for methods and not opmode-specific code. You will only go here to change the Constants.java file and your hardware configuration
+- `framework`: The base code for methods and not opmode-specific code. You will only go here to change the Constants.java file and your hardware configuration in OpModeBase.java
   - `hardware`: Hardware specific code for subsystems, wrappers and drivers. You will almost never need to interact with this package
 - `opmodes`: This is where your opmodes will reside. It is the only package where you can change anything and make it your own
 - `tuners`: Opmodes for tuning hardware and debugging. You will generally not put anything in here unless you write an opmode to tune a specific subsystem
+
+# Installation/Setup
+Setting up a new project is very easy, you only need to follow a few steps and you are ready to go!
+1. Fork the repo - go to the main GitHub page for this repo and look for the button that says Fork. Click that and give it a name
+2. Once you have done that, it should take you to a page that looks like the one for this repo, but with the name you gave it.
+3. Clone the repo(put the code onto your computer) - Click the green button that says Code on the main page of YOUR repository. Don't click that button on this page. Copy the URL you see there
+4. Go to Android Studio and click the top left three lines -> File -> New -> Project from Version Control. Paste in the URL you got in step 4 and continue
+5. It may take a few minutes to set up, but you will know you are ready when you see three folders in the left hand side of Android Studio; `FtcRobotController`, `TeamCode`, and `Gradle Scripts`
+6. You're done! Remember, your code is under `TeamCode`
+
 # Method Documentation
 This documentation covers **all classes and methods** in `TeamCode/src/main/java/gcsrobotics/framework` for the GreenlandRoboticsFramework.  
 It includes explanations for:  

@@ -1,5 +1,6 @@
 package gcsrobotics.tuners;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import gcsrobotics.framework.AutoBase;
@@ -12,36 +13,16 @@ import gcsrobotics.framework.AutoBase;
  * @see OdoTuner
  */
 @TeleOp(name="Drive Tuner")
+@Config
 //@Disabled
 public class DriveTuner extends AutoBase {
+
+    public static int targetX = 0, targetY = 0;
 
     protected void runSequence(){
         while(opModeIsActive()){
 
-            //Test vertically with a long distance
-            if(gamepad1.y){
-                path(48,0);
-                resetPosition();
-            }
-
-            //Test vertically with a short distance
-            if(gamepad1.a){
-                path(24,0);
-                resetPosition();
-            }
-
-
-            //Test horizontally with a long distance
-            if(gamepad1.x){
-                path(0,48);
-                resetPosition();
-            }
-
-            //Test horizontally with a short distance
-            if(gamepad1.b){
-                path(0,24);
-                resetPosition();
-            }
+            path(targetX, targetY);
 
         }
     }
