@@ -21,6 +21,12 @@ import gcsrobotics.framework.hardware.DcMotorEnhanced;
 @SuppressWarnings("all")
 public abstract class AutoBase extends OpModeBase {
 
+    //Global variables specific to pidDrivePower
+    private double lastXError = 0;
+    private double lastYError = 0;
+    private ElapsedTime pidTimerX = new ElapsedTime();
+    private ElapsedTime pidTimerY = new ElapsedTime();
+
     protected enum Axis{
         X,
         Y,
@@ -114,6 +120,8 @@ public abstract class AutoBase extends OpModeBase {
         ElapsedTime endTimer = new ElapsedTime();
         boolean endSession = false;
 
+        resetPidTimers();
+
         while (opModeIsActive() && notStuck(targetX,targetY)) {
             double xError = targetX - getX();
             double yError = -(targetY - getY()); //Set negative to compenstate
@@ -172,6 +180,8 @@ public abstract class AutoBase extends OpModeBase {
     /// @param targetY the y coordinate you want to go to
     /// @param forgiveAxis the axis you want to not consider in the end behavior
     protected void chain(int targetX, int targetY, Axis forgiveAxis) {
+        resetPidTimers();
+
         while (opModeIsActive() && notStuck(targetX,targetY)) {
             double xError = targetX - getX();
             double yError = -(targetY - getY()); //Set negative to compensate
@@ -256,22 +266,39 @@ public abstract class AutoBase extends OpModeBase {
         return Math.IEEEremainder(angle, 360.0);
     }
 
-    //Global variables specific to pidDrivePower
-    private double lastXError = 0;
-    private double lastYError = 0;
-    private ElapsedTime pidTimer = new ElapsedTime();
+    /// Reset all errors and timers for pathing methods
+    private void resetPidTimers(){
+        pidTimerX.reset();
+        pidTimerY.reset();
+        lastXError = Double.NaN;
+        lastYError = Double.NaN;
+    }
 
     /// Calculates drive power for the pathing methods using PID control
     private double pidDrivePower(double error, boolean isX) {
         double kp = isX ? KpDrive : KpDrive + 0.006;
 
         // Get the time delta for derivative calculation
-        double deltaTime = pidTimer.seconds();
-        pidTimer.reset();
+        double deltaTime;
+        if(isX) {
+            deltaTime = pidTimerX.seconds();
+            pidTimerX.reset();
+        }else{
+            deltaTime = pidTimerY.seconds();
+            pidTimerY.reset();
+        }
+
+        final double MIN_DT = 1e-2;
+        if(deltaTime < MIN_DT) deltaTime = MIN_DT;
 
         // Calculate derivative (rate of change of error)
         double lastError = isX ? lastXError : lastYError;
-        double derivative = deltaTime > 0 ? (error - lastError) / deltaTime : 0;
+        double derivative;
+        if (Double.isNaN(lastError)) {
+            derivative = 0;
+        } else {
+            derivative = (error - lastError) / deltaTime;
+        }
 
         // Update last error for next iteration
         if (isX) {

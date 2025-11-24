@@ -21,7 +21,7 @@ public class Constants {
     public static double PATH_TIMEOUT_MS;
     public static double MAX_HEADING_CORRECTION_POWER;
 
-    public static double GLOBAL_DEFAULT_MOTOR_SPEED;
+    public static double GLOBAL_DEFAULT_MOTOR_POWER;
     public static int ENCODER_TOLERANCE;
     public static double AUTO_MAX_POWER;
 
@@ -65,7 +65,7 @@ public class Constants {
 
         // MOTOR CONSTANTS -- Likely won't need to tune
         ENCODER_TOLERANCE = 10; // How close a motor needs to be to the actual target before considering it "there"
-        GLOBAL_DEFAULT_MOTOR_SPEED = 1; // Default motor speed of a motor. Almost never need to tune
+        GLOBAL_DEFAULT_MOTOR_POWER = 1; // Default motor speed of a motor. Almost never need to tune
 
         // DRIVETRAIN CONSTANTS -- May need to tune once per drivetrain and determines motor directions
         flDirection = DcMotorSimple.Direction.REVERSE;
