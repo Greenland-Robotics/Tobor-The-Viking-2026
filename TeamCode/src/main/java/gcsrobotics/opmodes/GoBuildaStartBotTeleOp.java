@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import gcsrobotics.framework.TeleOpBase;
 
 @TeleOp(name="GoBuildaStartBotTeleOp")
-abstract class GoBuildaStartBotAuto extends TeleOpBase {
+public abstract class GoBuildaStartBotTeleOp extends TeleOpBase {
 
     private static final double STOP_SPEED = 0.0;
     private static final double LAUNCHER_TARGET_VELOCITY = 2000.0; // adjust as needed
@@ -52,7 +52,12 @@ abstract class GoBuildaStartBotAuto extends TeleOpBase {
     protected void runLoop() {
         implementDriveLogic();
         toggleFieldCentric(true);
+        telemetry.addLine("INIT RUNNING");
+        telemetry.update();
 
+        launcher = hardwareMap.get(DcMotorEx.class, "launcher_motor");
+        leftFeeder = hardwareMap.get(CRServo.class, "leftFeeder");
+        rightFeeder = hardwareMap.get(CRServo.class, "rightFeeder");
         // Drive speed control
         if (gamepad2.a) {
             setSpeed(0.3);

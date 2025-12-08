@@ -9,8 +9,10 @@ public abstract class TeleOpBase extends OpModeBase {
 
     private double speed = 0.7;
     protected boolean fieldCentric = true;
+    boolean noLock = true;
 
     @Override
+
     protected void runInit(){
         // Run without encoders for TeleOp
         for (DcMotorEnhanced motor : new DcMotorEnhanced[]{fl, fr, bl, br}) {
@@ -20,9 +22,8 @@ public abstract class TeleOpBase extends OpModeBase {
         inInit();
     }
 
-    @Override
-    protected void run(){
-        while(opModeIsActive()){
+    protected void run(boolean b){
+        while (opModeIsActive()){
             runLoop();
         }
     }
@@ -57,7 +58,7 @@ public abstract class TeleOpBase extends OpModeBase {
 
         // Use consistent naming: forward = X axis, strafe = Y axis (GoBILDA convention)
         double forward = -gamepad1.left_stick_y;  // Forward/back (X in GoBILDA)
-        double strafe = horizontal;               // Left/right (Y in GoBILDA)
+        double strafe = -horizontal;               // Left/right (Y in GoBILDA)
 
         if (fieldCentric) {
             // Field-centric compensation using GoBILDA convention
@@ -78,7 +79,6 @@ public abstract class TeleOpBase extends OpModeBase {
 
     /// Toggles fieldCentric mode, with a built in button debounce
     protected void toggleFieldCentric(boolean button){
-        boolean noLock = true;
         if(button && noLock){
             fieldCentric = !fieldCentric;
             noLock = false;
