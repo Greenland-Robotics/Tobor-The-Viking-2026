@@ -15,8 +15,9 @@ public class Auto1 extends AutoBase {
 
     @Override
     protected void runSequence() {
-        path(24,0);
+        path(0,24);
+    }
+
+    private void setPowers(int i) {
     }
 }
-
-
