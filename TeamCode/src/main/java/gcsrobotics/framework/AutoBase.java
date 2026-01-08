@@ -124,7 +124,7 @@ public abstract class AutoBase extends OpModeBase {
 
         while (opModeIsActive() && notStuck(targetX,targetY)) {
             double xError = targetX - getX();
-            double yError = targetY - getY();
+            double yError = -(targetY - getY()); //Set negative to compenstate
 
             boolean atTarget;
             switch(forgiveAxis){
@@ -184,7 +184,7 @@ public abstract class AutoBase extends OpModeBase {
 
         while (opModeIsActive() && notStuck(targetX,targetY)) {
             double xError = targetX - getX();
-            double yError = targetY - getY();
+            double yError = -(targetY - getY()); //Set negative to compensate
 
             boolean atTarget;
             switch(forgiveAxis){
