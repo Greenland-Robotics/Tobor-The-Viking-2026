@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import gcsrobotics.framework.TeleOpBase;
 
 @TeleOp(name="Path Finder")
-public class PathFinder extends TeleOpBase {
+public abstract class PathFinder extends TeleOpBase {
 
     @Override
     protected void inInit() {
@@ -13,7 +13,12 @@ public class PathFinder extends TeleOpBase {
         telemetry.addLine("Use this to find positions on the field");
         telemetry.update();
     }
-
+    @Override
+    protected void run() {
+        while (opModeIsActive()){
+            runLoop();
+        }
+    }
     @Override
     protected void runLoop() {
         telemetry.addData("X",getX());

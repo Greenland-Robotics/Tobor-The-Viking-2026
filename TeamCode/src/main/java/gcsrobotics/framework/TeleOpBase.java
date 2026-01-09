@@ -8,8 +8,8 @@ import gcsrobotics.framework.hardware.DcMotorEnhanced;
 public abstract class TeleOpBase extends OpModeBase {
 
     private double speed = 0.7;
-    protected boolean fieldCentric = true;
-    boolean noLock = true;
+//    protected boolean fieldCentric = true;
+//    boolean noLock = true;
 
     @Override
 
@@ -54,20 +54,20 @@ public abstract class TeleOpBase extends OpModeBase {
             horizontal = -stickDeadZone - rightTriggerDeadZone + leftTriggerDeadZone;
         }
 
-        double pivot = gamepad1.right_stick_x > 0.1 || gamepad1.right_stick_x < -0.1 ? gamepad1.right_stick_x : 0;
+        double pivot = Math.abs(gamepad1.right_stick_x) > 0.1 ? gamepad1.right_stick_x : 0;
 
         // Use consistent naming: forward = X axis, strafe = Y axis (GoBILDA convention)
         double forward = -gamepad1.left_stick_y;  // Forward/back (X in GoBILDA)
         double strafe = -horizontal;               // Left/right (Y in GoBILDA)
 
-        if (fieldCentric) {
-            // Field-centric compensation using GoBILDA convention
-            double headingRad = Math.toRadians(odo.getAngle());
-            double tempForward = forward * Math.cos(headingRad) - strafe * Math.sin(headingRad);
-            double tempStrafe = forward * Math.sin(headingRad) + strafe * Math.cos(headingRad);
-            forward = tempForward;
-            strafe = tempStrafe;
-        }
+//        if (fieldCentric) {
+//            // Field-centric compensation using GoBILDA convention
+//            double headingRad = Math.toRadians(odo.getAngle());
+//            double tempForward = forward * Math.cos(headingRad) - strafe * Math.sin(headingRad);
+//            double tempStrafe = forward * Math.sin(headingRad) + strafe * Math.cos(headingRad);
+//            forward = tempForward;
+//            strafe = tempStrafe;
+//        }
 
         // Mecanum drive motor calculations
         // Forward: all motors same direction, Strafe: diagonal pattern
@@ -78,12 +78,12 @@ public abstract class TeleOpBase extends OpModeBase {
     }
 
     /// Toggles fieldCentric mode, with a built in button debounce
-    protected void toggleFieldCentric(boolean button){
-        if(button && noLock){
-            fieldCentric = !fieldCentric;
-            noLock = false;
-            gamepad1.rumble(400);
-        }else noLock = true;
-    }
-
+//    protected void toggleFieldCentric(boolean button){
+//        if(button && noLock){
+//            fieldCentric = !fieldCentric;
+//            noLock = false;
+//            gamepad1.rumble(400);
+//        }else noLock = true;
+//    }
+//
 }

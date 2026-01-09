@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import gcsrobotics.framework.hardware.Claw;
 import gcsrobotics.framework.hardware.DcMotorEnhanced;
 import gcsrobotics.framework.hardware.GoBildaPinpointDriver;
@@ -16,7 +19,6 @@ public abstract class OpModeBase extends LinearOpMode {
     protected Servo servo;
     protected Claw claw;
     protected GoBildaPinpointDriver odo;
-
 
     protected abstract void runInit();
     protected abstract void run();
@@ -40,8 +42,14 @@ public abstract class OpModeBase extends LinearOpMode {
 
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(Constants.xPodDirection, Constants.yPodDirection);
-        odo.resetPosAndIMU();
 
+        odo.resetPosAndIMU();
+        // Initialize telemetry for dashboard and Driver Hub
+        odo.setOffsets(
+                Constants.X_ODO_POD_OFFSET_MM,
+                Constants.Y_ODO_POD_OFFSET_MM,
+                DistanceUnit.MM
+        );
         //TODO: Set motor directions. Some motors will be reversed, so you must change that here
         //Note: Typically the right side is reversed, but change it as you need
         fl.setDirection(Constants.flDirection);
@@ -53,9 +61,7 @@ public abstract class OpModeBase extends LinearOpMode {
 
     @Override
     public void runOpMode(){
-        // Initialize telemetry for dashboard and Driver Hub
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
+        telemetry = new MultipleTelemetry(telemetry,FtcDashboard.getInstance().getTelemetry());
         //Initialize hardware
         initHardware();
 
@@ -71,6 +77,7 @@ public abstract class OpModeBase extends LinearOpMode {
     }
 
     /// Resets the odometry position to 0
+
     protected void resetPosition(){
         odo.resetPosAndIMU();
     }

@@ -12,7 +12,6 @@ public class Constants {
     public static double KdDrive;
     public static double KpHeadingCorrection;
     public static double KpTurn;
-
     public static double PATH_TOLERANCE_IN;
     public static double CHAIN_TOLERANCE_IN;
     public static double TURN_TOLERANCE_DEG;
@@ -24,7 +23,8 @@ public class Constants {
     public static double GLOBAL_DEFAULT_MOTOR_POWER;
     public static int ENCODER_TOLERANCE;
     public static double AUTO_MAX_POWER;
-
+    public static double X_ODO_POD_OFFSET_MM;
+    public static double Y_ODO_POD_OFFSET_MM;
     public static DcMotorSimple.Direction flDirection;
     public static DcMotorSimple.Direction frDirection;
     public static  DcMotorSimple.Direction blDirection;
@@ -33,7 +33,7 @@ public class Constants {
     public static GoBildaPinpointDriver.EncoderDirection xPodDirection;
     public static GoBildaPinpointDriver.EncoderDirection yPodDirection;
 
-    static{
+    static {
 
         /* Examples of constants
         --- Use this to set things like servo and motor positions ---
@@ -45,7 +45,7 @@ public class Constants {
 
         // PATHING CONSTANTS - Likely necessary to tune
 
-        KpDrive = 0.01;
+        KpDrive = 0.04;
         KdDrive = 0.001;
         KpHeadingCorrection = 0.02; //P value for heading correction during paths
         KpTurn = 0.1;
@@ -69,7 +69,7 @@ public class Constants {
 
         // DRIVETRAIN CONSTANTS -- May need to tune once per drivetrain and determines motor directions
         flDirection = DcMotorSimple.Direction.REVERSE;
-        frDirection = DcMotorSimple.Direction.FORWARD;
+        frDirection = DcMotorSimple.Direction.REVERSE;
         blDirection = DcMotorSimple.Direction.REVERSE;
         brDirection = DcMotorSimple.Direction.FORWARD;
 
@@ -78,9 +78,7 @@ public class Constants {
         xPodDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
         //Reverse this if going left makes the y coordinate go down
         yPodDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
-
-
+        X_ODO_POD_OFFSET_MM = -29;
+        Y_ODO_POD_OFFSET_MM = -35;
     }
-
-
 }

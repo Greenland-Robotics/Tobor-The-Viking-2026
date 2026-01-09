@@ -25,7 +25,7 @@ public class TeleOpfinal extends TeleOpBase {
     public double currentSpeed = 0;
 
     //MAX_MAX VELOCITY is used for the max velocity that the y
-    public double MAXIMUM_MAXIMUM_VELOCITY = 3400;
+    public double MAXIMUM_MAXIMUM_VELOCITY = 1800;
     //MAX VELOCITY IS USED FOR DPAD
     public double MAXIMUM_VELOCITY = 1700;
     boolean kickerActive = false;
@@ -61,9 +61,10 @@ public class TeleOpfinal extends TeleOpBase {
             telemetry.addLine("Velocity? : " + launcher.getVelocity());
             telemetry.addLine("Loop is working");
             telemetry.update();
+
             /// THIS PART IS GAMEPAD 1
             implementDriveLogic();
-            toggleFieldCentric(true);
+            //toggleFieldCentric(false);
 //          Speeds!!
             if (gamepad1.a) {
                 setSpeed(0.3);

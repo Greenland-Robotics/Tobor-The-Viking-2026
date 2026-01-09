@@ -21,6 +21,13 @@ public class OdoTuner extends TeleOpBase {
     }
 
     @Override
+    protected void run() {
+        while (opModeIsActive()){
+            runLoop();
+        }
+    }
+
+    @Override
     protected void runLoop() {
         telemetry.addLine("The X value should uptick when moving forward");
         telemetry.addLine("The Y value should uptick when moving left");

@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import gcsrobotics.framework.TeleOpBase;
 
 @TeleOp(name="Example TeleOp")
-@Disabled
 public class TeleOpExample extends TeleOpBase {
     @Override
     public void inInit(){
@@ -14,8 +13,9 @@ public class TeleOpExample extends TeleOpBase {
     }
 
     @Override
+    public void run() {runLoop();}
+    @Override
     public void runLoop(){
-
 
         /*
             Implements all drive logic necessary
@@ -25,7 +25,8 @@ public class TeleOpExample extends TeleOpBase {
         */
         implementDriveLogic();
         // This toggles field-centric drive when the left bumper is pressed
-        toggleFieldCentric(gamepad1.left_bumper);
+
+        //toggleFieldCentric(gamepad1.left_bumper);
 
         //Example usage of the setMotorPosition() Method
         if(gamepad2.b){
