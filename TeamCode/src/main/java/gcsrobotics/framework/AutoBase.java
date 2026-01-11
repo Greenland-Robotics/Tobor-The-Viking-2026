@@ -122,7 +122,7 @@ public abstract class AutoBase extends OpModeBase {
 
         resetPidTimers();
 
-        while (opModeIsActive() && notStuck(targetX,targetY)) {
+        while (opModeIsActive() && !endSession) {
             double xError = targetX - getX();
             double yError = -(targetY - getY()); //Set negative to compenstate
 

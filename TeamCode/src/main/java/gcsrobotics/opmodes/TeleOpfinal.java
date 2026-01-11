@@ -25,9 +25,9 @@ public class TeleOpfinal extends TeleOpBase {
     public double currentSpeed = 0;
 
     //MAX_MAX VELOCITY is used for the max velocity that the y
-    public double MAXIMUM_MAXIMUM_VELOCITY = 1800;
+    public double MAXIMUM_MAXIMUM_VELOCITY = 2000;
     //MAX VELOCITY IS USED FOR DPAD
-    public double MAXIMUM_VELOCITY = 1700;
+    public double MAXIMUM_VELOCITY = 2000;
     boolean kickerActive = false;
     @Override
     protected void inInit() {
@@ -76,17 +76,17 @@ public class TeleOpfinal extends TeleOpBase {
                 setSpeed(1.0);
             }
             /// FROM NOW ON, THE REST IS GAMEPAD 2
-            if (gamepad2.dpad_up && !kickerActive) {
-                kicker.setPosition(0.3);   // Move down
+            /*if (gamepad2.dpad_up && !kickerActive) {
+                kicker.setPosition(0.5);   // Move down
                 kickerTimer.reset();       // Start timer
                 kickerActive = true;
             }
 
 
-            if (kickerActive && kickerTimer.milliseconds() > 100) {
-                kicker.setPosition(0.6);   // Move up
+            if (kickerActive && kickerTimer.milliseconds() > 300) {
+                kicker.setPosition(0);   // Move up
                 kickerActive = false;
-            }
+            }*/
             if (gamepad2.right_bumper) {
                 right_servo_feeder.setPower(-1); /// Conveyor start
                 left_servo_feeder.setPower(1);
@@ -109,13 +109,13 @@ public class TeleOpfinal extends TeleOpBase {
                 launcher.setVelocity(MAXIMUM_MAXIMUM_VELOCITY*speed2);
             }
             else if (gamepad2.b){
-                launcher.setVelocity(MAXIMUM_VELOCITY*.3);
-            }
-            else if (gamepad2.y){
                 launcher.setVelocity(MAXIMUM_VELOCITY*.5);
             }
+            else if (gamepad2.y){
+                launcher.setVelocity(MAXIMUM_VELOCITY*.6);
+            }
             else if (gamepad2.x){
-                launcher.setVelocity(MAXIMUM_VELOCITY);
+                launcher.setVelocity(MAXIMUM_VELOCITY*.85);
             } else {
                 launcher.setVelocity(0);
             }
