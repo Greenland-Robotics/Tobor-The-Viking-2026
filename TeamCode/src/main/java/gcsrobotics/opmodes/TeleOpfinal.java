@@ -23,6 +23,14 @@ public class TeleOpfinal extends TeleOpBase {
     ElapsedTime kickerTimer = new ElapsedTime();
     public double lastSpeed = 0;
     public double currentSpeed = 0;
+    public double kP = 0;
+    public double kI = 0;
+    public double kD = 0;
+    public double kF = 0;
+    public double minOutput = -1;
+    public double maxOutput = 1;
+
+    PID_Controller PID = new PID_Controller(kP, kI, kD, kF, minOutput, maxOutput);
 
     //MAX_MAX VELOCITY is used for the max velocity that the y
     public double MAXIMUM_MAXIMUM_VELOCITY = 2000;
