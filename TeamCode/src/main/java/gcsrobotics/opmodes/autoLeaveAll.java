@@ -16,7 +16,7 @@ import gcsrobotics.framework.AutoBase;
 @Autonomous(name="autoLeaveAll")
 public class autoLeaveAll extends AutoBase {
     public static double LAUNCHER_VELOCITY = 0;
-    public static double KICKER_POSITION = 0.3;
+    public static double KICKER_POSITION_UP = 0.5;
     public static double INTAKE_RIGHT = -1;
     public static double GROUND_INTAKE_SPEED = -1;
     public static double target_launcher_speed = 1200;
@@ -80,7 +80,7 @@ public class autoLeaveAll extends AutoBase {
     public void intakeAndLaunch(double TARGET_SPEED){
 
         while (opModeIsActive() && !intakeDone) {
-            kicker.setPosition(KICKER_POSITION);
+            kicker.setPosition(KICKER_POSITION_UP);
             right_servo_feeder.setPower(INTAKE_RIGHT);
             left_servo_feeder.setPower(-INTAKE_RIGHT);
             intake.setPower(GROUND_INTAKE_SPEED);

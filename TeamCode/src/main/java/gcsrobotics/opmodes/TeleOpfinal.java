@@ -47,6 +47,7 @@ public class TeleOpfinal extends TeleOpBase {
     protected void run() {
         telemetry.addLine("run START");
         telemetry.update();
+        kicker.setPosition(0);
         runLoop();
     }
     // Runs repeatedly while the OpMode is active
@@ -76,22 +77,43 @@ public class TeleOpfinal extends TeleOpBase {
                 setSpeed(1.0);
             }
             /// FROM NOW ON, THE REST IS GAMEPAD 2
-            /*if (gamepad2.dpad_up && !kickerActive) {
-                kicker.setPosition(0.5);   // Move down
+            if (gamepad2.dpad_up && !kickerActive) {
+                right_servo_feeder.setPower(0);
+                left_servo_feeder.setPower(0);
+                kickerTimer.reset();
+                while (kickerTimer.milliseconds() < 400) {
+                    kickerActive = true;
+                }
+                kicker.setPosition(0.5);   // Move Down
                 kickerTimer.reset();       // Start timer
-                kickerActive = true;
             }
 
 
-            if (kickerActive && kickerTimer.milliseconds() > 300) {
-                kicker.setPosition(0);   // Move up
+            if (gamepad2.dpad_down) {
+                kicker.setPosition(0);
                 kickerActive = false;
-            }*/
+            }
+
+            if (kickerActive && kickerTimer.milliseconds() > 1000) {
+                right_servo_feeder.setPower(-1);
+                left_servo_feeder.setPower(1);
+                kickerTimer.reset();
+                while (kickerTimer.milliseconds() < 3000) {
+                    right_servo_feeder.setPower(-0.1);
+                    left_servo_feeder.setPower(0.1);
+                    intake.setPower(-0.5);
+                }
+                right_servo_feeder.setPower(-1);
+                left_servo_feeder.setPower(1);
+
+                kickerActive = false;
+            }
+
             if (gamepad2.right_bumper) {
                 right_servo_feeder.setPower(-1); /// Conveyor start
                 left_servo_feeder.setPower(1);
             }if (gamepad2.left_bumper) {
-                right_servo_feeder.setPower(0); /// Conveyor start
+                right_servo_feeder.setPower(0); /// Conveyor stop
                 left_servo_feeder.setPower(0);
             }
 
@@ -100,9 +122,14 @@ public class TeleOpfinal extends TeleOpBase {
 
 
             /// Left joystick on gamepad2 controls feeders
-            double speed1 = gamepad2.left_stick_y; /// REMEMBER IT'S Y AXIS
-            intake.setPower(speed1);
-
+            //double speed1 = gamepad2.left_stick_y; /// REMEMBER IT'S Y AXIS
+           // intake.setPower(speed1);
+            if (gamepad2.left_stick_button) {
+                intake.setPower(-1);
+            }
+            if (gamepad2.right_stick_button) {
+                intake.setPower(0);
+            }
 
             double speed2 = -gamepad2.right_stick_y; // Negative because joystick up is usually -1
             if (Math.abs(speed2) > 0.1){
@@ -115,11 +142,11 @@ public class TeleOpfinal extends TeleOpBase {
                 launcher.setVelocity(MAXIMUM_VELOCITY*.6);
             }
             else if (gamepad2.x){
-                launcher.setVelocity(MAXIMUM_VELOCITY*.85);
-            } else {
+                launcher.setVelocity(MAXIMUM_VELOCITY*.81);
+            }
+            else if (gamepad2.a){
                 launcher.setVelocity(0);
             }
-
 
             launcher.getCurrentPosition();
         }

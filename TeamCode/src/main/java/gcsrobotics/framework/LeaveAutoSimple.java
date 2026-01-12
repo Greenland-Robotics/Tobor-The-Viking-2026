@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Autonomous(name="Leave Auto Simple", group="Auto")
-class LeaveAutoSimple extends LinearOpMode {
+public class LeaveAutoSimple extends LinearOpMode {
 
     private DcMotor leftFront;
     private DcMotor rightFront;
