@@ -45,8 +45,8 @@ public class Constants {
 
         // PATHING CONSTANTS - Likely necessary to tune
 
-        KpDrive = 0.04;
-        KdDrive = 0.001;
+        KpDrive = 0.1; // 0.1
+        KdDrive = 0.001; //0.001
         KpHeadingCorrection = 0.02; //P value for heading correction during paths
         KpTurn = 0.1;
 

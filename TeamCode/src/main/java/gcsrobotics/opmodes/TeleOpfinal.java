@@ -110,13 +110,17 @@ public class TeleOpfinal extends TeleOpBase {
                     right_servo_feeder.setPower(-0.1);
                     left_servo_feeder.setPower(0.1);
                     intake.setPower(-0.5);
+                    implementDriveLogic();
+                    if (gamepad2.dpad_down) {
+                        kicker.setPosition(0);
+                        kickerActive = false;
+                        break;
+                    }
                 }
                 right_servo_feeder.setPower(-1);
                 left_servo_feeder.setPower(1);
-
                 kickerActive = false;
             }
-
             if (gamepad2.right_bumper) {
                 right_servo_feeder.setPower(-1); /// Conveyor start
                 left_servo_feeder.setPower(1);

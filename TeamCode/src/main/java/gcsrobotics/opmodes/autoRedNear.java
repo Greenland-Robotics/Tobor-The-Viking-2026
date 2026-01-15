@@ -13,8 +13,8 @@ import gcsrobotics.framework.AutoBase;
  *
  * @author Daniel Sabalakov (PLEASE CONTACT ME IF YOU HAVE ANY QUESTIONS)
  */
-@Autonomous(name="autoLeaveAll")
-public class autoLeaveAll extends AutoBase {
+@Autonomous(name="autoRedNear")
+public class autoRedNear extends AutoBase {
     public static double LAUNCHER_VELOCITY = 0;
     public static double KICKER_POSITION_UP = 0.5;
     public static double INTAKE_RIGHT = -1;
@@ -29,11 +29,17 @@ public class autoLeaveAll extends AutoBase {
     public DcMotor intake;
     public ElapsedTime intakeTime = new ElapsedTime();
     public boolean intakeDone = false;
-    public boolean fakeVariable = true;
+    boolean kickerActive = false;
+    ElapsedTime kickerTimer = new ElapsedTime();
+    public double SHOOTER_VELOCITY = 1200;
+
+    public int TARGET_X = 50;
+    public int target_Y = 0;
     @Override
     protected void runInit() {
         //call a super incase there is super mumbo jumbo AutoBase Abstraction
         super.runInit();
+
 
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -59,37 +65,27 @@ public class autoLeaveAll extends AutoBase {
     public void runSequence() {
         //commands get run here...
         //kicker.setPosition(0.5);
-        while(opModeIsActive() && fakeVariable) {
 
-            path(-15, 0, Axis.Y);
-
-
-            //fakeVariable=false;
-
-        }
-            //turn(-45);
-            //intakeTime.reset();
-            //intakeAndLaunch(target_launcher_speed);
-            //turn(-45);
-            //path(-24,0,Axis.Y);
-
-
-    }
-
-
-    public void intakeAndLaunch(double TARGET_SPEED){
-
-        while (opModeIsActive() && !intakeDone) {
-            kicker.setPosition(KICKER_POSITION_UP);
-            right_servo_feeder.setPower(INTAKE_RIGHT);
-            left_servo_feeder.setPower(-INTAKE_RIGHT);
-            intake.setPower(GROUND_INTAKE_SPEED);
-
-
-            launcher.setVelocity(TARGET_SPEED);
-            if (intakeTime.seconds() > 4) {intakeDone = true;}
+        while (opModeIsActive()) {
+            launcher.setVelocity(SHOOTER_VELOCITY);
+            path(TARGET_X, target_Y, Axis.Y);
+            if (!kickerActive) {
+                kickerTimer.reset();
+            }
+            kickerActive = true;
+            kicker.setPosition(0.5);   // Move Down
+            if (kickerActive && kickerTimer.milliseconds() > 4000) {
+                right_servo_feeder.setPower(-1);
+                left_servo_feeder.setPower(1);
+                kickerTimer.reset();
+                while (kickerTimer.milliseconds() < 3000) {
+                    right_servo_feeder.setPower(-0.1);
+                    left_servo_feeder.setPower(0.1);
+                    intake.setPower(-0.5);
+                }
+                target_Y = 10;
+            }
 
         }
     }
-
 }
