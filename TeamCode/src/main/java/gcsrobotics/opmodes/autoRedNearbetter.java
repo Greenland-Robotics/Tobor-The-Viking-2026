@@ -13,8 +13,8 @@ import gcsrobotics.framework.AutoBase;
  *
  * @author Daniel Sabalakov- Timmy and Luke and Mack. and idk prob someone else too (PLEASE CONTACT ME (daniel) IF YOU HAVE ANY QUESTIONS)
  */
-@Autonomous(name="autoRedNear")
-public class autoRedNear extends AutoBase {
+@Autonomous(name="autoRedNearbetter")
+public class autoRedNearbetter extends AutoBase {
     public static double LAUNCHER_VELOCITY = 0;
     public static double KICKER_POSITION_UP = 0.5;
     public static double INTAKE_RIGHT = -1;
