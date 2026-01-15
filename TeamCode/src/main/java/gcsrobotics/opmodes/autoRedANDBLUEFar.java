@@ -1,20 +1,14 @@
 package gcsrobotics.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import gcsrobotics.framework.AutoBase;
+
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import gcsrobotics.framework.AutoBase;
-
-/**
- *
- * @author Daniel Sabalakov (PLEASE CONTACT ME IF YOU HAVE ANY QUESTIONS)
- */
-@Autonomous(name="autoBlueNear")
-public class autoBlueNear extends AutoBase {
+public abstract class autoRedANDBLUEFar extends AutoBase {
     public static double LAUNCHER_VELOCITY = 0;
     public static double KICKER_POSITION_UP = 0.5;
     public static double INTAKE_RIGHT = -1;
@@ -31,64 +25,40 @@ public class autoBlueNear extends AutoBase {
     public boolean intakeDone = false;
     boolean kickerActive = false;
     ElapsedTime kickerTimer = new ElapsedTime();
-    public double SHOOTER_VELOCITY = 1200;
-
-    public int TARGET_X = 53;
+    public int TARGET_X = 50;
     public int target_Y = 0;
+    private int SHOOTER_VELOCITY = 1700;
+
+    /// The code that runs during start
+    protected abstract void runSequence();
+
     @Override
     protected void runInit() {
-        //call a super incase there is super mumbo jumbo AutoBase Abstraction
-        super.runInit();
-
-
-        launcher = hardwareMap.get(DcMotorEx.class, "launcher");
-        launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        kicker = hardwareMap.get(Servo.class, "kicker");
-        left_servo_feeder = hardwareMap.get(CRServo.class, "left_servo_feeder");
-        right_servo_feeder = hardwareMap.get(CRServo.class, "right_servo_feeder");
-        intake = hardwareMap.get(DcMotor.class, "intake");
-
-        left_servo_feeder.setPower(0);
-        right_servo_feeder.setPower(0);
-
+        initSequence();
     }
 
     @Override
-    public void run() {
-//        while (opModeIsActive()){
-//            runSequence();
-//        }
+    protected void run() {
         runSequence();
-    }
-    @Override
-    public void runSequence() {
-        //commands get run here...
-        //kicker.setPosition(0.5);
 
         while (opModeIsActive()) {
             launcher.setVelocity(SHOOTER_VELOCITY);
-            path(TARGET_X, target_Y, Axis.Y);
             if (!kickerActive) {
                 kickerTimer.reset();
             }
             kickerActive = true;
             kicker.setPosition(0.5);   // Move Down
-            //tinker with time here for shooting delay
-            if (kickerActive && kickerTimer.milliseconds() > 4000) {
+            if (kickerActive && kickerTimer.milliseconds() >1000) {
                 right_servo_feeder.setPower(-1);
                 left_servo_feeder.setPower(1);
                 kickerTimer.reset();
-                //tinker with time for delay to move
                 while (kickerTimer.milliseconds() < 3000) {
                     right_servo_feeder.setPower(-0.1);
                     left_servo_feeder.setPower(0.1);
                     intake.setPower(-0.5);
+                    path(12, 0);
                 }
-                //tinker here for left right move for taxi
-                target_Y -= 10;
             }
-
         }
     }
 }

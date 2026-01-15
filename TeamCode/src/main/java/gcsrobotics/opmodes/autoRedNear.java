@@ -11,7 +11,7 @@ import gcsrobotics.framework.AutoBase;
 
 /**
  *
- * @author Daniel Sabalakov (PLEASE CONTACT ME IF YOU HAVE ANY QUESTIONS)
+ * @author Daniel Sabalakov- Timmy and Luke and Mack and idk prob someone else too (PLEASE CONTACT ME- (daniel) IF YOU HAVE ANY QUESTIONS)
  */
 @Autonomous(name="autoRedNear")
 public class autoRedNear extends AutoBase {
@@ -32,7 +32,6 @@ public class autoRedNear extends AutoBase {
     boolean kickerActive = false;
     ElapsedTime kickerTimer = new ElapsedTime();
     public double SHOOTER_VELOCITY = 1200;
-
     public int TARGET_X = 50;
     public int target_Y = 0;
     @Override
@@ -53,7 +52,6 @@ public class autoRedNear extends AutoBase {
         right_servo_feeder.setPower(0);
 
     }
-
     @Override
     public void run() {
 //        while (opModeIsActive()){
@@ -83,7 +81,7 @@ public class autoRedNear extends AutoBase {
                     left_servo_feeder.setPower(0.1);
                     intake.setPower(-0.5);
                 }
-                target_Y = 10;
+                target_Y += 10;
             }
 
         }
