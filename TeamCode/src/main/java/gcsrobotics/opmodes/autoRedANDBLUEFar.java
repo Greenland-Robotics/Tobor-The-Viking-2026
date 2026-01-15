@@ -2,18 +2,20 @@ package gcsrobotics.opmodes;
 
 import gcsrobotics.framework.AutoBase;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public abstract class autoRedANDBLUEFar extends AutoBase {
+@Autonomous(name="autoRedANDBLUEFar")
+public class autoRedANDBLUEFar extends AutoBase {
     public static double LAUNCHER_VELOCITY = 0;
     public static double KICKER_POSITION_UP = 0.5;
     public static double INTAKE_RIGHT = -1;
     public static double GROUND_INTAKE_SPEED = -1;
-    public static double target_launcher_speed = 1200;
+    public static double target_launcher_speed = 1000;
     public static int targetAngle = 0;
 
 
@@ -25,22 +27,35 @@ public abstract class autoRedANDBLUEFar extends AutoBase {
     public boolean intakeDone = false;
     boolean kickerActive = false;
     ElapsedTime kickerTimer = new ElapsedTime();
-    public int TARGET_X = 50;
+    public int TARGET_X = 12;
     public int target_Y = 0;
-    private int SHOOTER_VELOCITY = 1700;
+    public double SHOOTER_VELOCITY = 1700;
 
     /// The code that runs during start
-    protected abstract void runSequence();
 
     @Override
     protected void runInit() {
-        initSequence();
+        super.runInit();
+
+        launcher = hardwareMap.get(DcMotorEx.class, "launcher");
+        launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        kicker = hardwareMap.get(Servo.class, "kicker");
+        left_servo_feeder = hardwareMap.get(CRServo.class, "left_servo_feeder");
+        right_servo_feeder = hardwareMap.get(CRServo.class, "right_servo_feeder");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+
+        left_servo_feeder.setPower(0);
+        right_servo_feeder.setPower(0);
     }
 
     @Override
     protected void run() {
         runSequence();
+    }
 
+    @Override
+    public void runSequence() {
         while (opModeIsActive()) {
             launcher.setVelocity(SHOOTER_VELOCITY);
             if (!kickerActive) {
@@ -48,7 +63,7 @@ public abstract class autoRedANDBLUEFar extends AutoBase {
             }
             kickerActive = true;
             kicker.setPosition(0.5);   // Move Down
-            if (kickerActive && kickerTimer.milliseconds() >1000) {
+            if (kickerActive && kickerTimer.milliseconds() > 1000) {
                 right_servo_feeder.setPower(-1);
                 left_servo_feeder.setPower(1);
                 kickerTimer.reset();
@@ -56,8 +71,8 @@ public abstract class autoRedANDBLUEFar extends AutoBase {
                     right_servo_feeder.setPower(-0.1);
                     left_servo_feeder.setPower(0.1);
                     intake.setPower(-0.5);
-                    path(12, 0);
                 }
+                path(TARGET_X, target_Y);
             }
         }
     }

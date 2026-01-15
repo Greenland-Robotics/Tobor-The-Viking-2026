@@ -33,6 +33,12 @@ public class Constants {
     public static GoBildaPinpointDriver.EncoderDirection xPodDirection;
     public static GoBildaPinpointDriver.EncoderDirection yPodDirection;
 
+    public static double limelightMountHeight;
+    public static double limelightMountOffset;
+    public static double targetAprilTagHeight;
+    public static double targetAprilTagSpaceToCenter;
+    public static double limelightTargetThreshold;
+
     static {
 
         /* Examples of constants
@@ -42,6 +48,14 @@ public class Constants {
 
         Add any other constants you need here and use them throughout your opmodes!
          */
+
+        // limelight constants
+        limelightMountHeight = 11.75;
+        limelightMountOffset = 5;
+        targetAprilTagHeight = 33;
+        targetAprilTagSpaceToCenter = 8.125 / 2;
+        limelightTargetThreshold = 5;
+
 
         // PATHING CONSTANTS - Likely necessary to tune
 

@@ -65,28 +65,28 @@ public class autoBlueNear extends AutoBase {
     public void runSequence() {
         //commands get run here...
         //kicker.setPosition(0.5);
-
         while (opModeIsActive()) {
+            kicker.setPosition(0);
             launcher.setVelocity(SHOOTER_VELOCITY);
             path(TARGET_X, target_Y, Axis.Y);
             if (!kickerActive) {
                 kickerTimer.reset();
             }
             kickerActive = true;
-            kicker.setPosition(0.5);   // Move Down
             //tinker with time here for shooting delay
             if (kickerActive && kickerTimer.milliseconds() > 4000) {
+                kicker.setPosition(0.5);   // Move Down
                 right_servo_feeder.setPower(-1);
                 left_servo_feeder.setPower(1);
                 kickerTimer.reset();
                 //tinker with time for delay to move
-                while (kickerTimer.milliseconds() < 3000) {
+                while (kickerTimer.milliseconds() < 5000) {
                     right_servo_feeder.setPower(-0.1);
                     left_servo_feeder.setPower(0.1);
                     intake.setPower(-0.5);
                 }
                 //tinker here for left right move for taxi
-                target_Y -= 10;
+                target_Y = -10;
             }
 
         }

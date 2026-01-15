@@ -1,22 +1,30 @@
 package gcsrobotics.opmodes;
 
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Light;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-import gcsrobotics.framework.TeleOpBase;
+import java.util.List;
 
+import gcsrobotics.framework.TeleOpBase;
+import gcsrobotics.framework.Constants;
 
 @TeleOp(name="TeleOpfinal")
 public class TeleOpfinal extends TeleOpBase {
     public Servo kicker;
+    public Limelight3A limelight;
     public ElapsedTime time;
     public CRServo right_servo_feeder;
     public CRServo left_servo_feeder;
+    public Servo light;
     public DcMotorEx launcher;
     public DcMotor intake;
     // Runs once when INIT is pressed
@@ -33,9 +41,9 @@ public class TeleOpfinal extends TeleOpBase {
     PID_Controller PID = new PID_Controller(kP, kI, kD, kF, minOutput, maxOutput);
 
     //MAX_MAX VELOCITY is used for the max velocity that the y
-    public double MAXIMUM_MAXIMUM_VELOCITY = 2000;
+    public double MAXIMUM_MAXIMUM_VELOCITY = 3000;
     //MAX VELOCITY IS USED FOR DPAD
-    public double MAXIMUM_VELOCITY = 2000;
+    public double MAXIMUM_VELOCITY = 3000;
     boolean kickerActive = false;
     @Override
     protected void inInit() {
@@ -45,6 +53,11 @@ public class TeleOpfinal extends TeleOpBase {
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake = hardwareMap.get(DcMotor.class, "intake");
+        limelight = hardwareMap.get(Limelight3A.class, "Ethernet Device");
+//        light = hardwareMap.get(Servo.class, "light");
+        limelight.setPollRateHz(100);
+        limelight.start();
+
 //        fl.setDirection(DcMotor.Direction.REVERSE);
 //        time = new ElapsedTime();
 
@@ -161,6 +174,58 @@ public class TeleOpfinal extends TeleOpBase {
             }
 
             launcher.getCurrentPosition();
+            double[] limeReadings = getlightlimeresults();
+            if (limeReadings != null) {
+                double lastTx = limeReadings[0];
+                double lastTy = limeReadings[1];
+                double distanceFromGoal = limeReadings[2];
+
+                telemetry.addData("tx", lastTx);
+                telemetry.addData("ty", lastTy);
+                telemetry.addData("Distance from AprilTag", distanceFromGoal);
+//                light.setPosition(0);
+                if (Math.abs(lastTx) > Constants.limelightTargetThreshold){
+                    if (lastTx < 0) {
+//                        light.setPosition(0.277);
+                        telemetry.addLine("MOVE RIGHT");
+                    }
+                    if (lastTx > 0) {
+//                        light.setPosition(0.555);
+                        telemetry.addLine("MOVE LEFT");
+                    }
+                }
+
+
+            }
+            telemetry.update();
         }
     }
+
+
+    public double[] getlightlimeresults() {
+        double[] returnvalue = new double[]{0, 0};
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            List<LLResultTypes.FiducialResult> resultS = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult individualAprilTags : resultS){
+                if (individualAprilTags.getFiducialId() == 24 || individualAprilTags.getFiducialId() == 20){
+                    // red or blue area
+                    //view paper for what each means
+                    double tx = result.getTx();
+                    double ty = result.getTy();
+                    double h2 = (Constants.targetAprilTagHeight + Constants.targetAprilTagSpaceToCenter) - Constants.limelightMountHeight;
+                    double d = h2/Math.tan(ty);
+                    double horiz = d*Math.tan(tx);
+
+                    double normalizedX = Math.atan2(horiz + Constants.limelightMountOffset, d);
+                    return new double[]{normalizedX, ty, d};
+
+                }
+
+            }
+
+        }
+        return null;
+    }
 }
+

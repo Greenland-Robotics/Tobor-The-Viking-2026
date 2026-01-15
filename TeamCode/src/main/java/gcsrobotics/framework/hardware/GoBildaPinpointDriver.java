@@ -44,7 +44,7 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
     private static final float goBILDA_4_BAR_POD    = 19.89436789f; //ticks-per-mm for the goBILDA 4-Bar Pod
 
     //i2c address of the device
-    public static final byte DEFAULT_ADDRESS = 0x31;
+    public static final byte DEFAULT_ADDRESS = 0x31; // was 0x31
 
     public GoBildaPinpointDriver(I2cDeviceSynchSimple deviceClient, boolean deviceClientIsOwned) {
         super(deviceClient, deviceClientIsOwned);
