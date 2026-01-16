@@ -69,8 +69,8 @@ public class autoRedANDBLUEFar extends AutoBase {
                 left_servo_feeder.setPower(1);
                 kickerTimer.reset();
                 while (kickerTimer.milliseconds() < 5000) {
-                    right_servo_feeder.setPower(-0.1);
-                    left_servo_feeder.setPower(0.1);
+                    right_servo_feeder.setPower(-0.25);
+                    left_servo_feeder.setPower(0.25);
                     intake.setPower(-0.5);
                 }
                 path(TARGET_X, target_Y);

@@ -54,7 +54,7 @@ public class Constants {
         limelightMountOffset = 5;
         targetAprilTagHeight = 33;
         targetAprilTagSpaceToCenter = 8.125 / 2;
-        limelightTargetThreshold = 5;
+        limelightTargetThreshold = 1;
 
 
         // PATHING CONSTANTS - Likely necessary to tune

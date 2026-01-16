@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Light;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
+import com.qualcomm.robotcore.hardware.PwmControl;
 
 import java.util.List;
 
@@ -54,9 +54,13 @@ public class TeleOpfinal extends TeleOpBase {
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake = hardwareMap.get(DcMotor.class, "intake");
         limelight = hardwareMap.get(Limelight3A.class, "Ethernet Device");
-//        light = hardwareMap.get(Servo.class, "light");
+        light = hardwareMap.get(Servo.class, "light");
         limelight.setPollRateHz(100);
         limelight.start();
+        PwmControl lightPWM = (PwmControl) light;
+        PwmControl.PwmRange range = new PwmControl.PwmRange(500,1500);
+        lightPWM.setPwmRange(range);
+        lightPWM.setPwmEnable();
 
 //        fl.setDirection(DcMotor.Direction.REVERSE);
 //        time = new ElapsedTime();
@@ -185,17 +189,18 @@ public class TeleOpfinal extends TeleOpBase {
                 telemetry.addData("Distance from AprilTag", distanceFromGoal);
 //                light.setPosition(0);
                 if (Math.abs(lastTx) > Constants.limelightTargetThreshold){
-                    if (lastTx < 0) {
-//                        light.setPosition(0.277);
+                    if (lastTx < -1) {
+                        light.setPosition(0.277);
                         telemetry.addLine("MOVE RIGHT");
-                    }
-                    if (lastTx > 0) {
-//                        light.setPosition(0.555);
+                    } else if (lastTx > 1) {
+                        light.setPosition(0.611);
                         telemetry.addLine("MOVE LEFT");
                     }
+                } else {
+                    light.setPosition(0.5);
                 }
-
-
+            } else {
+                light.setPosition(0);
             }
             telemetry.update();
         }
@@ -203,7 +208,6 @@ public class TeleOpfinal extends TeleOpBase {
 
 
     public double[] getlightlimeresults() {
-        double[] returnvalue = new double[]{0, 0};
         LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
             List<LLResultTypes.FiducialResult> resultS = result.getFiducialResults();
