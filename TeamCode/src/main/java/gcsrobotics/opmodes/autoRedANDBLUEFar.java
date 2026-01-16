@@ -27,7 +27,7 @@ public class autoRedANDBLUEFar extends AutoBase {
     public boolean intakeDone = false;
     boolean kickerActive = false;
     ElapsedTime kickerTimer = new ElapsedTime();
-    public int TARGET_X = 12;
+    public int TARGET_X = -12;
     public int target_Y = 0;
     public double SHOOTER_VELOCITY = 1700;
 
@@ -57,17 +57,18 @@ public class autoRedANDBLUEFar extends AutoBase {
     @Override
     public void runSequence() {
         while (opModeIsActive()) {
+            kicker.setPosition(0);
             launcher.setVelocity(SHOOTER_VELOCITY);
             if (!kickerActive) {
                 kickerTimer.reset();
             }
             kickerActive = true;
-            kicker.setPosition(0.5);   // Move Down
-            if (kickerActive && kickerTimer.milliseconds() > 1000) {
+            if (kickerActive && kickerTimer.milliseconds() > 6000) {
+                kicker.setPosition(0.5);   // Move Down
                 right_servo_feeder.setPower(-1);
                 left_servo_feeder.setPower(1);
                 kickerTimer.reset();
-                while (kickerTimer.milliseconds() < 3000) {
+                while (kickerTimer.milliseconds() < 5000) {
                     right_servo_feeder.setPower(-0.1);
                     left_servo_feeder.setPower(0.1);
                     intake.setPower(-0.5);

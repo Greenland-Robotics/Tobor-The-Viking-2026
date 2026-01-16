@@ -41,9 +41,9 @@ public class TeleOpfinal extends TeleOpBase {
     PID_Controller PID = new PID_Controller(kP, kI, kD, kF, minOutput, maxOutput);
 
     //MAX_MAX VELOCITY is used for the max velocity that the y
-    public double MAXIMUM_MAXIMUM_VELOCITY = 3000;
+    public double MAXIMUM_MAXIMUM_VELOCITY = 2000;
     //MAX VELOCITY IS USED FOR DPAD
-    public double MAXIMUM_VELOCITY = 3000;
+    public double MAXIMUM_VELOCITY = 2000;
     boolean kickerActive = false;
     @Override
     protected void inInit() {
