@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import gcsrobotics.framework.AutoBase;
+import gcsrobotics.framework.Constants;
 
 /**
  *
@@ -31,10 +32,9 @@ public class autoBlueNear extends AutoBase {
     public boolean intakeDone = false;
     boolean kickerActive = false;
     ElapsedTime kickerTimer = new ElapsedTime();
-    public double SHOOTER_VELOCITY = 1200;
 
-    public int TARGET_X = 53;
     public int target_Y = 0;
+
     @Override
     protected void runInit() {
         //call a super incase there is super mumbo jumbo AutoBase Abstraction
@@ -67,8 +67,8 @@ public class autoBlueNear extends AutoBase {
         //kicker.setPosition(0.5);
         while (opModeIsActive()) {
             kicker.setPosition(0);
-            launcher.setVelocity(SHOOTER_VELOCITY);
-            path(TARGET_X, target_Y, Axis.Y);
+            launcher.setVelocity(Constants.autoCloseShootSpeed);
+            path(Constants.autoCloseTaxiX, target_Y, Axis.Y);
             if (!kickerActive) {
                 kickerTimer.reset();
             }
@@ -76,17 +76,15 @@ public class autoBlueNear extends AutoBase {
             //tinker with time here for shooting delay
             if (kickerActive && kickerTimer.milliseconds() > 4000) {
                 kicker.setPosition(0.5);   // Move Down
-                right_servo_feeder.setPower(-1);
-                left_servo_feeder.setPower(1);
                 kickerTimer.reset();
                 //tinker with time for delay to move
                 while (kickerTimer.milliseconds() < 5000) {
-                    right_servo_feeder.setPower(-0.1);
-                    left_servo_feeder.setPower(0.1);
+                    right_servo_feeder.setPower(-Constants.autoCloseFeedSpeed);
+                    left_servo_feeder.setPower(Constants.autoCloseFeedSpeed);
                     intake.setPower(-0.5);
                 }
                 //tinker here for left right move for taxi
-                target_Y = -10;
+                target_Y = -Constants.autoCloseTaxiY;
             }
 
         }
