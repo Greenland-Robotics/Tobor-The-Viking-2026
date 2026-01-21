@@ -335,15 +335,17 @@ public abstract class AutoBase extends OpModeBase {
     /// @param headingCorrection the scaled heading correction(it will not limit for you!)
     private void setMotorPowers(double xPower, double yPower, double headingCorrection) {
         // Compensate for robot heading (field-centric control)
-        // We need to rotate by the heading to convert field coords to robot coords
-        double headingRad = Math.toRadians(getAngle());
+        // To convert field coords to robot coords, we rotate by NEGATIVE heading (inverse rotation)
+        double headingRad = Math.toRadians(-getAngle());
 
         // Apply field-centric transformation (rotate field vector into robot frame)
-        double forwardPower = xPower * Math.cos(headingRad) - yPower * Math.sin(headingRad);
-        double strafePower  = xPower * Math.sin(headingRad) + yPower * Math.cos(headingRad);
+        // Field Y maps to robot forward, Field X maps to robot strafe
+        double forwardPower = yPower * Math.cos(headingRad) - xPower * Math.sin(headingRad);
+        double strafePower  = yPower * Math.sin(headingRad) + xPower * Math.cos(headingRad);
 
         // Calculate mecanum motor powers
         // Forward = all motors same direction, Strafe = diagonal pattern
+        // Must match TeleOpBase: fl(+strafe), fr(-strafe), bl(-strafe), br(+strafe)
         double flPower = forwardPower + strafePower + headingCorrection;
         double frPower = forwardPower - strafePower - headingCorrection;
         double blPower = forwardPower - strafePower + headingCorrection;
