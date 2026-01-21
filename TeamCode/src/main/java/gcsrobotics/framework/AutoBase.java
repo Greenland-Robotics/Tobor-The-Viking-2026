@@ -108,6 +108,10 @@ public abstract class AutoBase extends OpModeBase {
     protected void path(int targetX, int targetY) {
         path(targetX, targetY, Axis.NONE);
     }
+    protected void path(int targetX, int targetY, double targetAngle){
+        this.targetAngle = targetAngle;
+        path(targetX, targetY, Axis.NONE);
+    }
 
 
     /// <strong>Precise positioning</strong><br>
@@ -171,6 +175,11 @@ public abstract class AutoBase extends OpModeBase {
     /// @param targetX the x coordinate you want to go to
     /// @param targetY the y coordinate you want to go to
     protected void chain(int targetX, int targetY) {
+        chain(targetX, targetY, Axis.NONE);
+    }
+
+    protected void chain(int targetX, int targetY, double targetAngle) {
+        this.targetAngle = targetAngle;
         chain(targetX, targetY, Axis.NONE);
     }
 
