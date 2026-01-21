@@ -135,10 +135,10 @@ public abstract class AutoBase extends OpModeBase {
             boolean atTarget;
             switch(forgiveAxis){
                 case X:
-                    atTarget = Math.abs(xError) < PATH_TOLERANCE_IN;
+                    atTarget = Math.abs(yError) < PATH_TOLERANCE_IN;
                     break;
                 case Y:
-                    atTarget = Math.abs(yError) < PATH_TOLERANCE_IN;
+                    atTarget = Math.abs(xError) < PATH_TOLERANCE_IN;
                     break;
                 default:
                     atTarget = Math.abs(xError) < PATH_TOLERANCE_IN && Math.abs(yError) < PATH_TOLERANCE_IN;
@@ -201,10 +201,10 @@ public abstract class AutoBase extends OpModeBase {
             boolean atTarget;
             switch(forgiveAxis){
                 case X:
-                    atTarget = Math.abs(xError) < CHAIN_TOLERANCE_IN;
+                    atTarget = Math.abs(yError) < CHAIN_TOLERANCE_IN;
                     break;
                 case Y:
-                    atTarget = Math.abs(yError) < CHAIN_TOLERANCE_IN;
+                    atTarget = Math.abs(xError) < CHAIN_TOLERANCE_IN;
                     break;
                 default:
                     atTarget = Math.abs(xError) < CHAIN_TOLERANCE_IN && Math.abs(yError) < CHAIN_TOLERANCE_IN;
@@ -234,17 +234,14 @@ public abstract class AutoBase extends OpModeBase {
      * @param targetAngle the angle to turn to, in degrees (0 = field forward, CCW+)
      */
     protected void turn(double targetAngle) {
-
-        this.targetAngle = targetAngle;
-
-        targetAngle = normalizeAngle(targetAngle);
+        this.targetAngle = normalizeAngle(targetAngle);
 
         ElapsedTime settleTimer = new ElapsedTime();
         boolean settling = false;
 
         while (opModeIsActive()) {
             double currentAngle = getAngle();
-            double error = -normalizeAngle(targetAngle - currentAngle); //Negative to compensate
+            double error = normalizeAngle(this.targetAngle - currentAngle);
 
             // Check if within tolerance to start settling
             if (Math.abs(error) <= TURN_TOLERANCE_DEG) {
@@ -266,17 +263,21 @@ public abstract class AutoBase extends OpModeBase {
             setMotorPowers(0, 0, power);
             updateInPath();
             telemetry.addLine("Turning");
-            telemetry.addData("Target Angle", targetAngle);
+            telemetry.addData("Target Angle", this.targetAngle);
             telemetry.addData("Current Angle", currentAngle);
-            telemetry.addData("Error",error);
+            telemetry.addData("Error", error);
             telemetry.addData("Turn Power", power);
             telemetry.update();
         }
         stopMotors();
     }
 
+
     private double normalizeAngle(double angle){
-        return Math.IEEEremainder(angle, 360.0);
+        double a = angle % 360.0;
+        if (a >= 180.0) a -= 360.0;
+        if (a < -180.0) a += 360.0;
+        return a;
     }
 
     /// Reset all errors and timers for pathing methods
