@@ -335,8 +335,8 @@ public abstract class AutoBase extends OpModeBase {
     /// @param headingCorrection the scaled heading correction(it will not limit for you!)
     private void setMotorPowers(double xPower, double yPower, double headingCorrection) {
         // Compensate for robot heading (field-centric control)
-        // We need to rotate by NEGATIVE heading to convert field coords to robot coords
-        double headingRad = Math.toRadians(-getAngle());
+        // We need to rotate by the heading to convert field coords to robot coords
+        double headingRad = Math.toRadians(getAngle());
 
         // Apply field-centric transformation (rotate field vector into robot frame)
         double forwardPower = xPower * Math.cos(headingRad) - yPower * Math.sin(headingRad);
