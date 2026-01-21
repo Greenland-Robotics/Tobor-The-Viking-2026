@@ -157,7 +157,7 @@ public abstract class AutoBase extends OpModeBase {
             double xPower = pidDrivePower(xError, true);
             double yPower = pidDrivePower(yError, false);
             double headingCorrection = Range.clip(
-                    KpHeadingCorrection * (getAngle() - this.targetAngle),
+                    KpHeadingCorrection * normalizeAngle(this.targetAngle - getAngle()),
                     -MAX_HEADING_CORRECTION_POWER, MAX_HEADING_CORRECTION_POWER
             );
 
@@ -216,7 +216,7 @@ public abstract class AutoBase extends OpModeBase {
             double xPower = pidDrivePower(xError, true);
             double yPower = pidDrivePower(yError, false);
             double headingCorrection = Range.clip(
-                    KpHeadingCorrection * (getAngle() - this.targetAngle),
+                    KpHeadingCorrection * normalizeAngle(this.targetAngle - getAngle()),
                     -MAX_HEADING_CORRECTION_POWER, MAX_HEADING_CORRECTION_POWER
             );
 
@@ -335,11 +335,12 @@ public abstract class AutoBase extends OpModeBase {
     /// @param headingCorrection the scaled heading correction(it will not limit for you!)
     private void setMotorPowers(double xPower, double yPower, double headingCorrection) {
         // Compensate for robot heading (field-centric control)
-        double headingRad = Math.toRadians(getAngle());
+        // We need to rotate by NEGATIVE heading to convert field coords to robot coords
+        double headingRad = Math.toRadians(-getAngle());
 
-        // Apply field-centric transformation
-        double forwardPower =  xPower * Math.cos(headingRad) + yPower * Math.sin(headingRad);
-        double strafePower  = -xPower * Math.sin(headingRad) + yPower * Math.cos(headingRad);
+        // Apply field-centric transformation (rotate field vector into robot frame)
+        double forwardPower = xPower * Math.cos(headingRad) - yPower * Math.sin(headingRad);
+        double strafePower  = xPower * Math.sin(headingRad) + yPower * Math.cos(headingRad);
 
         // Calculate mecanum motor powers
         // Forward = all motors same direction, Strafe = diagonal pattern
