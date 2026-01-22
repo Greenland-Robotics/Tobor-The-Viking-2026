@@ -1,12 +1,14 @@
 package gcsrobotics.opmodes;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import gcsrobotics.framework.TeleOpBase;
 
 @TeleOp(name="TeleOp")
 @Config
+@Disabled
 public abstract class Tele1 extends TeleOpBase {
 
     public static double velocity = 0;

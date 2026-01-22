@@ -2,6 +2,7 @@ package gcsrobotics.opmodes;
 
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import gcsrobotics.framework.TeleOpBase;
 
 @TeleOp(name="GoBuildaStartBotTeleOp")
+@Disabled
 public abstract class GoBuildaStartBotTeleOp extends TeleOpBase {
 
     private static final double STOP_SPEED = 0.0;

@@ -1,0 +1,450 @@
+<html>
+<head>
+<title>AutoBase.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #5f826b; font-style: italic;}
+.s4 { color: #68a67e; font-style: italic;}
+.s5 { color: #67a37c; font-style: italic;}
+.s6 { color: #6aab73;}
+.s7 { color: #7a7e85;}
+.s8 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+AutoBase.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">gcsrobotics</span><span class="s2">.</span><span class="s1">framework</span><span class="s2">;</span>
+
+<span class="s0">import static </span><span class="s1">gcsrobotics</span><span class="s2">.</span><span class="s1">framework</span><span class="s2">.</span><span class="s1">Constants</span><span class="s2">.*;</span>
+
+<span class="s0">import </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">annotation</span><span class="s2">.</span><span class="s1">NonNull</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">com</span><span class="s2">.</span><span class="s1">qualcomm</span><span class="s2">.</span><span class="s1">robotcore</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">ElapsedTime</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">com</span><span class="s2">.</span><span class="s1">qualcomm</span><span class="s2">.</span><span class="s1">robotcore</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">Range</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">function</span><span class="s2">.</span><span class="s1">Supplier</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">gcsrobotics</span><span class="s2">.</span><span class="s1">framework</span><span class="s2">.</span><span class="s1">hardware</span><span class="s2">.</span><span class="s1">DcMotorEnhanced</span><span class="s2">;</span>
+
+<span class="s3">/** The base for all autonomous opmodes. This class extends OpModeBase, so you have access to all</span>
+ <span class="s3">* hardware, global variables, and more.</span>
+ <span class="s3">* </span><span class="s4">&lt;br&gt;</span>
+ <span class="s3">* This provides a centralized and modular approach to autonomous opmodes.</span><span class="s4">&lt;br&gt;</span>
+ <span class="s3">* This class has pathing methods,simple drive methods, and lots of utility methods</span>
+ <span class="s3">* </span><span class="s5">@author </span><span class="s3">Josh Kelley</span>
+ <span class="s3">**/</span>
+<span class="s1">@SuppressWarnings</span><span class="s2">(</span><span class="s6">&quot;all&quot;</span><span class="s2">)</span>
+<span class="s0">public abstract class </span><span class="s1">AutoBase </span><span class="s0">extends </span><span class="s1">OpModeBase </span><span class="s2">{</span>
+
+    <span class="s7">//Global variables specific to pidDrivePower</span>
+    <span class="s0">private double </span><span class="s1">lastXError </span><span class="s2">= </span><span class="s8">0</span><span class="s2">;</span>
+    <span class="s0">private double </span><span class="s1">lastYError </span><span class="s2">= </span><span class="s8">0</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">ElapsedTime pidTimerX </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ElapsedTime</span><span class="s2">();</span>
+    <span class="s0">private </span><span class="s1">ElapsedTime pidTimerY </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ElapsedTime</span><span class="s2">();</span>
+
+    <span class="s0">protected enum </span><span class="s1">Axis</span><span class="s2">{</span>
+        <span class="s1">X</span><span class="s2">,</span>
+        <span class="s1">Y</span><span class="s2">,</span>
+        <span class="s1">NONE</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// Optional method to define when you want to run code in init</span>
+    <span class="s0">protected void </span><span class="s1">initSequence</span><span class="s2">(){}</span>
+
+    <span class="s3">/// The code that runs during start</span>
+    <span class="s0">protected abstract void </span><span class="s1">runSequence</span><span class="s2">();</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">protected void </span><span class="s1">runInit</span><span class="s2">(){</span>
+        <span class="s1">initSequence</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">protected void </span><span class="s1">run</span><span class="s2">() {</span>
+        <span class="s1">runSequence</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private final </span><span class="s1">ElapsedTime stuckTimer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ElapsedTime</span><span class="s2">();</span>
+    <span class="s0">private double </span><span class="s1">lastDistanceToTarget </span><span class="s2">= </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">MAX_VALUE</span><span class="s2">;</span>
+    <span class="s0">private double </span><span class="s1">targetAngle </span><span class="s2">= </span><span class="s8">0</span><span class="s2">;</span>
+
+
+    <span class="s3">/** Used for making small, corrective movements when you need simple directional movement</span>
+     <span class="s5">@param </span><span class="s3">direction the direction you want to move</span>
+     <span class="s5">@param </span><span class="s3">power the power to set the motors to</span>
+     <span class="s5">@param </span><span class="s3">time the time to wait in milliseconds</span>
+    <span class="s3">*/</span>
+    <span class="s0">protected void </span><span class="s1">simpleDrive</span><span class="s2">(</span><span class="s1">Axis direction</span><span class="s2">, </span><span class="s0">double </span><span class="s1">power</span><span class="s2">, </span><span class="s0">int </span><span class="s1">time</span><span class="s2">){</span>
+        <span class="s0">switch</span><span class="s2">(</span><span class="s1">direction</span><span class="s2">){</span>
+            <span class="s0">case </span><span class="s1">X</span><span class="s2">:</span>
+                <span class="s0">for</span><span class="s2">(</span><span class="s1">DcMotorEnhanced motor</span><span class="s2">: </span><span class="s0">new </span><span class="s1">DcMotorEnhanced</span><span class="s2">[]{</span><span class="s1">fl</span><span class="s2">,</span><span class="s1">fr</span><span class="s2">,</span><span class="s1">bl</span><span class="s2">,</span><span class="s1">br</span><span class="s2">}){</span>
+                    <span class="s1">motor</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s1">power</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s1">wait</span><span class="s2">(</span><span class="s1">time</span><span class="s2">);</span>
+                <span class="s1">stopMotors</span><span class="s2">();</span>
+                <span class="s0">break</span><span class="s2">;</span>
+            <span class="s0">case </span><span class="s1">Y</span><span class="s2">:</span>
+                <span class="s1">fl</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(-</span><span class="s1">power</span><span class="s2">);</span>
+                <span class="s1">fr</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s1">power</span><span class="s2">);</span>
+                <span class="s1">bl</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s1">power</span><span class="s2">);</span>
+                <span class="s1">br</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(-</span><span class="s1">power</span><span class="s2">);</span>
+                <span class="s1">wait</span><span class="s2">(</span><span class="s1">time</span><span class="s2">);</span>
+                <span class="s1">stopMotors</span><span class="s2">();</span>
+                <span class="s0">break</span><span class="s2">;</span>
+            <span class="s0">default</span><span class="s2">:</span>
+                <span class="s0">throw new </span><span class="s1">IllegalArgumentException</span><span class="s2">(</span><span class="s6">&quot;Invalid direction for simpleDrive: NONE&quot; </span><span class="s2">+</span>
+                        <span class="s6">&quot;is not a valid direction&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+
+    <span class="s2">}</span>
+
+    <span class="s3">/// Waits for a set amount of time, similar to sleep, but better because it keeps updating</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">milliseconds the amount of time to wait in milliseconds</span>
+    <span class="s0">protected void </span><span class="s1">wait</span><span class="s2">(</span><span class="s0">int </span><span class="s1">milliseconds</span><span class="s2">) {</span>
+        <span class="s1">ElapsedTime timer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ElapsedTime</span><span class="s2">();</span>
+        <span class="s1">timer</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+        <span class="s0">do </span><span class="s2">{</span>
+            <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addLine</span><span class="s2">(</span><span class="s1">String</span><span class="s2">.</span><span class="s1">format</span><span class="s2">(</span><span class="s6">&quot;Waiting for %d milliseconds&quot;</span><span class="s2">, (</span><span class="s1">milliseconds </span><span class="s2">- </span><span class="s1">timer</span><span class="s2">.</span><span class="s1">milliseconds</span><span class="s2">())));</span>
+            <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">update</span><span class="s2">();</span>
+            <span class="s1">sleep</span><span class="s2">(</span><span class="s8">50</span><span class="s2">);</span>
+        <span class="s2">} </span><span class="s0">while</span><span class="s2">((</span><span class="s1">opModeIsActive</span><span class="s2">() &amp;&amp; </span><span class="s1">timer</span><span class="s2">.</span><span class="s1">milliseconds</span><span class="s2">() &lt; </span><span class="s1">milliseconds</span><span class="s2">));</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// </span><span class="s4">&lt;strong&gt;</span><span class="s3">Precise positioning&lt;/strong&gt;</span><span class="s4">&lt;br&gt;</span>
+    <span class="s3">/// Accurate movement to any specified coordinate you want.</span>
+    <span class="s3">/// If you need to be accurate in your positioning, use this method.</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">targetX the x coordinate you want to go to</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">targetY the y coordinate you want to go to</span>
+    <span class="s0">protected void </span><span class="s1">path</span><span class="s2">(</span><span class="s0">int </span><span class="s1">targetX</span><span class="s2">, </span><span class="s0">int </span><span class="s1">targetY</span><span class="s2">) {</span>
+        <span class="s1">path</span><span class="s2">(</span><span class="s1">targetX</span><span class="s2">, </span><span class="s1">targetY</span><span class="s2">, </span><span class="s1">Axis</span><span class="s2">.</span><span class="s1">NONE</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// </span><span class="s4">&lt;strong&gt;</span><span class="s3">Precise positioning&lt;/strong&gt;</span><span class="s4">&lt;br&gt;</span>
+    <span class="s3">/// Accurate movement to any specified coordinate you want.</span>
+    <span class="s3">/// If you need to be accurate in your positioning, use this method.</span>
+    <span class="s3">/// This method has a forgiveAxis, so if you don't want a particular axis to affect</span>
+    <span class="s3">/// end behavior, you can specify it here</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">targetX the x coordinate you want to go to</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">targetY the y coordinate you want to go to</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">forgiveAxis the axis you want to not consider in the end behavior</span>
+    <span class="s0">protected void </span><span class="s1">path</span><span class="s2">(</span><span class="s0">int </span><span class="s1">targetX</span><span class="s2">, </span><span class="s0">int </span><span class="s1">targetY</span><span class="s2">, </span><span class="s1">Axis forgiveAxis</span><span class="s2">) {</span>
+        <span class="s1">ElapsedTime endTimer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ElapsedTime</span><span class="s2">();</span>
+        <span class="s0">boolean </span><span class="s1">endSession </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+
+        <span class="s1">resetPidTimers</span><span class="s2">();</span>
+
+        <span class="s0">while </span><span class="s2">(</span><span class="s1">opModeIsActive</span><span class="s2">() &amp;&amp; !</span><span class="s1">endSession</span><span class="s2">) {</span>
+            <span class="s0">double </span><span class="s1">xError </span><span class="s2">= </span><span class="s1">targetX </span><span class="s2">- </span><span class="s1">getX</span><span class="s2">();</span>
+            <span class="s0">double </span><span class="s1">yError </span><span class="s2">= -(</span><span class="s1">targetY </span><span class="s2">- </span><span class="s1">getY</span><span class="s2">()); </span><span class="s7">//Set negative to compenstate</span>
+
+            <span class="s0">boolean </span><span class="s1">atTarget</span><span class="s2">;</span>
+            <span class="s0">switch</span><span class="s2">(</span><span class="s1">forgiveAxis</span><span class="s2">){</span>
+                <span class="s0">case </span><span class="s1">X</span><span class="s2">:</span>
+                    <span class="s1">atTarget </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">xError</span><span class="s2">) &lt; </span><span class="s1">PATH_TOLERANCE_IN</span><span class="s2">;</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s1">Y</span><span class="s2">:</span>
+                    <span class="s1">atTarget </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">yError</span><span class="s2">) &lt; </span><span class="s1">PATH_TOLERANCE_IN</span><span class="s2">;</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">default</span><span class="s2">:</span>
+                    <span class="s1">atTarget </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">xError</span><span class="s2">) &lt; </span><span class="s1">PATH_TOLERANCE_IN </span><span class="s2">&amp;&amp; </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">yError</span><span class="s2">) &lt; </span><span class="s1">PATH_TOLERANCE_IN</span><span class="s2">;</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">atTarget </span><span class="s2">&amp;&amp; !</span><span class="s1">endSession</span><span class="s2">) {</span>
+                <span class="s1">endSession </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+                <span class="s1">endTimer</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+            <span class="s2">} </span><span class="s0">else if </span><span class="s2">(!</span><span class="s1">atTarget</span><span class="s2">) {</span>
+                <span class="s1">endSession </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">endSession </span><span class="s2">&amp;&amp; </span><span class="s1">endTimer</span><span class="s2">.</span><span class="s1">milliseconds</span><span class="s2">() &gt; </span><span class="s1">PATH_SETTLE_TIME_MS</span><span class="s2">) </span><span class="s0">break</span><span class="s2">;</span>
+
+            <span class="s0">double </span><span class="s1">xPower </span><span class="s2">= </span><span class="s1">pidDrivePower</span><span class="s2">(</span><span class="s1">xError</span><span class="s2">, </span><span class="s0">true</span><span class="s2">);</span>
+            <span class="s0">double </span><span class="s1">yPower </span><span class="s2">= </span><span class="s1">pidDrivePower</span><span class="s2">(</span><span class="s1">yError</span><span class="s2">, </span><span class="s0">false</span><span class="s2">);</span>
+            <span class="s0">double </span><span class="s1">headingCorrection </span><span class="s2">= </span><span class="s1">Range</span><span class="s2">.</span><span class="s1">clip</span><span class="s2">(</span>
+                    <span class="s1">KpHeadingCorrection </span><span class="s2">* (</span><span class="s1">getAngle</span><span class="s2">() - </span><span class="s0">this</span><span class="s2">.</span><span class="s1">targetAngle</span><span class="s2">),</span>
+                    <span class="s2">-</span><span class="s1">MAX_HEADING_CORRECTION_POWER</span><span class="s2">, </span><span class="s1">MAX_HEADING_CORRECTION_POWER</span>
+            <span class="s2">);</span>
+
+            <span class="s1">setMotorPowers</span><span class="s2">(</span><span class="s1">xPower</span><span class="s2">, </span><span class="s1">yPower</span><span class="s2">, </span><span class="s1">headingCorrection</span><span class="s2">);</span>
+            <span class="s1">sendTelemetry</span><span class="s2">(</span><span class="s6">&quot;PATH&quot;</span><span class="s2">, </span><span class="s1">xError</span><span class="s2">, </span><span class="s1">yError</span><span class="s2">, </span><span class="s1">xPower</span><span class="s2">, </span><span class="s1">yPower</span><span class="s2">, </span><span class="s1">headingCorrection</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s1">stopMotors</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// </span><span class="s4">&lt;strong&gt;</span><span class="s3">Fast, but not as accurate&lt;/strong&gt;</span><span class="s4">&lt;br&gt;</span>
+    <span class="s3">/// Movement to any specified coordinates you want</span>
+    <span class="s3">/// If you want to be fast, but don't need it to be very accurate, use this.</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">targetX the x coordinate you want to go to</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">targetY the y coordinate you want to go to</span>
+    <span class="s0">protected void </span><span class="s1">chain</span><span class="s2">(</span><span class="s0">int </span><span class="s1">targetX</span><span class="s2">, </span><span class="s0">int </span><span class="s1">targetY</span><span class="s2">) {</span>
+        <span class="s1">chain</span><span class="s2">(</span><span class="s1">targetX</span><span class="s2">, </span><span class="s1">targetY</span><span class="s2">, </span><span class="s1">Axis</span><span class="s2">.</span><span class="s1">NONE</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// </span><span class="s4">&lt;strong&gt;</span><span class="s3">Fast, but not as accurate&lt;/strong&gt;</span><span class="s4">&lt;br&gt;</span>
+    <span class="s3">/// Movement to any specified coordinates you want</span>
+    <span class="s3">/// If you want to be fast, but don't need it to be very accurate, use this.</span>
+    <span class="s3">/// This method has a forgiveAxis, so if you don't want a particular axis to affect</span>
+    <span class="s3">/// end behavior, you can specify it here</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">targetX the x coordinate you want to go to</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">targetY the y coordinate you want to go to</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">forgiveAxis the axis you want to not consider in the end behavior</span>
+    <span class="s0">protected void </span><span class="s1">chain</span><span class="s2">(</span><span class="s0">int </span><span class="s1">targetX</span><span class="s2">, </span><span class="s0">int </span><span class="s1">targetY</span><span class="s2">, </span><span class="s1">Axis forgiveAxis</span><span class="s2">) {</span>
+        <span class="s1">resetPidTimers</span><span class="s2">();</span>
+
+        <span class="s0">while </span><span class="s2">(</span><span class="s1">opModeIsActive</span><span class="s2">() &amp;&amp; </span><span class="s1">notStuck</span><span class="s2">(</span><span class="s1">targetX</span><span class="s2">,</span><span class="s1">targetY</span><span class="s2">)) {</span>
+            <span class="s0">double </span><span class="s1">xError </span><span class="s2">= </span><span class="s1">targetX </span><span class="s2">- </span><span class="s1">getX</span><span class="s2">();</span>
+            <span class="s0">double </span><span class="s1">yError </span><span class="s2">= -(</span><span class="s1">targetY </span><span class="s2">- </span><span class="s1">getY</span><span class="s2">()); </span><span class="s7">//Set negative to compensate</span>
+
+            <span class="s0">boolean </span><span class="s1">atTarget</span><span class="s2">;</span>
+            <span class="s0">switch</span><span class="s2">(</span><span class="s1">forgiveAxis</span><span class="s2">){</span>
+                <span class="s0">case </span><span class="s1">X</span><span class="s2">:</span>
+                    <span class="s1">atTarget </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">xError</span><span class="s2">) &lt; </span><span class="s1">CHAIN_TOLERANCE_IN</span><span class="s2">;</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s1">Y</span><span class="s2">:</span>
+                    <span class="s1">atTarget </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">yError</span><span class="s2">) &lt; </span><span class="s1">CHAIN_TOLERANCE_IN</span><span class="s2">;</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">default</span><span class="s2">:</span>
+                    <span class="s1">atTarget </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">xError</span><span class="s2">) &lt; </span><span class="s1">CHAIN_TOLERANCE_IN </span><span class="s2">&amp;&amp; </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">yError</span><span class="s2">) &lt; </span><span class="s1">CHAIN_TOLERANCE_IN</span><span class="s2">;</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">atTarget</span><span class="s2">) </span><span class="s0">break</span><span class="s2">;</span>
+
+            <span class="s0">double </span><span class="s1">xPower </span><span class="s2">= </span><span class="s1">pidDrivePower</span><span class="s2">(</span><span class="s1">xError</span><span class="s2">, </span><span class="s0">true</span><span class="s2">);</span>
+            <span class="s0">double </span><span class="s1">yPower </span><span class="s2">= </span><span class="s1">pidDrivePower</span><span class="s2">(</span><span class="s1">yError</span><span class="s2">, </span><span class="s0">false</span><span class="s2">);</span>
+            <span class="s0">double </span><span class="s1">headingCorrection </span><span class="s2">= </span><span class="s1">Range</span><span class="s2">.</span><span class="s1">clip</span><span class="s2">(</span>
+                    <span class="s1">KpHeadingCorrection </span><span class="s2">* (</span><span class="s1">getAngle</span><span class="s2">() - </span><span class="s0">this</span><span class="s2">.</span><span class="s1">targetAngle</span><span class="s2">),</span>
+                    <span class="s2">-</span><span class="s1">MAX_HEADING_CORRECTION_POWER</span><span class="s2">, </span><span class="s1">MAX_HEADING_CORRECTION_POWER</span>
+            <span class="s2">);</span>
+
+            <span class="s1">setMotorPowers</span><span class="s2">(</span><span class="s1">xPower</span><span class="s2">, </span><span class="s1">yPower</span><span class="s2">, </span><span class="s1">headingCorrection</span><span class="s2">);</span>
+            <span class="s1">sendTelemetry</span><span class="s2">(</span><span class="s6">&quot;CHAIN&quot;</span><span class="s2">, </span><span class="s1">xError</span><span class="s2">, </span><span class="s1">yError</span><span class="s2">, </span><span class="s1">xPower</span><span class="s2">, </span><span class="s1">yPower</span><span class="s2">, </span><span class="s1">headingCorrection</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s1">stopMotors</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* Turns the robot to a specific heading (in degrees).</span>
+     <span class="s3">* Positive angles are counterclockwise, negative are clockwise.</span>
+     <span class="s3">* Uses a proportional controller for heading.</span>
+     <span class="s3">* </span><span class="s5">@param </span><span class="s3">targetAngle the angle to turn to, in degrees (0 = field forward, CCW+)</span>
+     <span class="s3">*/</span>
+    <span class="s0">protected void </span><span class="s1">turn</span><span class="s2">(</span><span class="s0">double </span><span class="s1">targetAngle</span><span class="s2">) {</span>
+
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">targetAngle </span><span class="s2">= </span><span class="s1">targetAngle</span><span class="s2">;</span>
+
+        <span class="s1">targetAngle </span><span class="s2">= </span><span class="s1">normalizeAngle</span><span class="s2">(</span><span class="s1">targetAngle</span><span class="s2">);</span>
+
+        <span class="s1">ElapsedTime settleTimer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ElapsedTime</span><span class="s2">();</span>
+        <span class="s0">boolean </span><span class="s1">settling </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+
+        <span class="s0">while </span><span class="s2">(</span><span class="s1">opModeIsActive</span><span class="s2">()) {</span>
+            <span class="s0">double </span><span class="s1">currentAngle </span><span class="s2">= </span><span class="s1">getAngle</span><span class="s2">();</span>
+            <span class="s0">double </span><span class="s1">error </span><span class="s2">= -</span><span class="s1">normalizeAngle</span><span class="s2">(</span><span class="s1">targetAngle </span><span class="s2">- </span><span class="s1">currentAngle</span><span class="s2">); </span><span class="s7">//Negative to compensate</span>
+
+            <span class="s7">// Check if within tolerance to start settling</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">error</span><span class="s2">) &lt;= </span><span class="s1">TURN_TOLERANCE_DEG</span><span class="s2">) {</span>
+                <span class="s0">if </span><span class="s2">(!</span><span class="s1">settling</span><span class="s2">) {</span>
+                    <span class="s1">settling </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+                    <span class="s1">settleTimer</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+                <span class="s2">}</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">settleTimer</span><span class="s2">.</span><span class="s1">milliseconds</span><span class="s2">() &gt;= </span><span class="s1">TURN_SETTLE_TIME_MS</span><span class="s2">) {</span>
+                    <span class="s0">break</span><span class="s2">; </span><span class="s7">// Done turning</span>
+                <span class="s2">}</span>
+            <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+                <span class="s1">settling </span><span class="s2">= </span><span class="s0">false</span><span class="s2">; </span><span class="s7">// Not settled, reset timer next time in tolerance</span>
+            <span class="s2">}</span>
+
+            <span class="s7">// Proportional control for turn power</span>
+            <span class="s0">double </span><span class="s1">power </span><span class="s2">= </span><span class="s1">KpTurn </span><span class="s2">* </span><span class="s1">error</span><span class="s2">;</span>
+
+            <span class="s7">// Only heading correction, no X/Y drive</span>
+            <span class="s1">setMotorPowers</span><span class="s2">(</span><span class="s8">0</span><span class="s2">, </span><span class="s8">0</span><span class="s2">, </span><span class="s1">power</span><span class="s2">);</span>
+
+            <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addLine</span><span class="s2">(</span><span class="s6">&quot;Turning&quot;</span><span class="s2">);</span>
+            <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;Target Angle&quot;</span><span class="s2">, </span><span class="s1">targetAngle</span><span class="s2">);</span>
+            <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;Current Angle&quot;</span><span class="s2">, </span><span class="s1">currentAngle</span><span class="s2">);</span>
+            <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;Error&quot;</span><span class="s2">,</span><span class="s1">error</span><span class="s2">);</span>
+            <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;Turn Power&quot;</span><span class="s2">, </span><span class="s1">power</span><span class="s2">);</span>
+            <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">update</span><span class="s2">();</span>
+        <span class="s2">}</span>
+        <span class="s1">stopMotors</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private double </span><span class="s1">normalizeAngle</span><span class="s2">(</span><span class="s0">double </span><span class="s1">angle</span><span class="s2">){</span>
+        <span class="s0">return </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">IEEEremainder</span><span class="s2">(</span><span class="s1">angle</span><span class="s2">, </span><span class="s8">360.0</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// Reset all errors and timers for pathing methods</span>
+    <span class="s0">private void </span><span class="s1">resetPidTimers</span><span class="s2">(){</span>
+        <span class="s1">pidTimerX</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+        <span class="s1">pidTimerY</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+        <span class="s1">lastXError </span><span class="s2">= </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">NaN</span><span class="s2">;</span>
+        <span class="s1">lastYError </span><span class="s2">= </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">NaN</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// Calculates drive power for the pathing methods using PID control</span>
+    <span class="s0">private double </span><span class="s1">pidDrivePower</span><span class="s2">(</span><span class="s0">double </span><span class="s1">error</span><span class="s2">, </span><span class="s0">boolean </span><span class="s1">isX</span><span class="s2">) {</span>
+        <span class="s0">double </span><span class="s1">kp </span><span class="s2">= </span><span class="s1">isX </span><span class="s2">? </span><span class="s1">KpDrive </span><span class="s2">: </span><span class="s1">KpDrive </span><span class="s2">+ </span><span class="s8">0.006</span><span class="s2">;</span>
+
+        <span class="s7">// Get the time delta for derivative calculation</span>
+        <span class="s0">double </span><span class="s1">deltaTime</span><span class="s2">;</span>
+        <span class="s0">if</span><span class="s2">(</span><span class="s1">isX</span><span class="s2">) {</span>
+            <span class="s1">deltaTime </span><span class="s2">= </span><span class="s1">pidTimerX</span><span class="s2">.</span><span class="s1">seconds</span><span class="s2">();</span>
+            <span class="s1">pidTimerX</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+        <span class="s2">}</span><span class="s0">else</span><span class="s2">{</span>
+            <span class="s1">deltaTime </span><span class="s2">= </span><span class="s1">pidTimerY</span><span class="s2">.</span><span class="s1">seconds</span><span class="s2">();</span>
+            <span class="s1">pidTimerY</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+        <span class="s2">}</span>
+
+        <span class="s0">final double </span><span class="s1">MIN_DT </span><span class="s2">= </span><span class="s8">1e-2</span><span class="s2">;</span>
+        <span class="s0">if</span><span class="s2">(</span><span class="s1">deltaTime </span><span class="s2">&lt; </span><span class="s1">MIN_DT</span><span class="s2">) </span><span class="s1">deltaTime </span><span class="s2">= </span><span class="s1">MIN_DT</span><span class="s2">;</span>
+
+        <span class="s7">// Calculate derivative (rate of change of error)</span>
+        <span class="s0">double </span><span class="s1">lastError </span><span class="s2">= </span><span class="s1">isX </span><span class="s2">? </span><span class="s1">lastXError </span><span class="s2">: </span><span class="s1">lastYError</span><span class="s2">;</span>
+        <span class="s0">double </span><span class="s1">derivative</span><span class="s2">;</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">Double</span><span class="s2">.</span><span class="s1">isNaN</span><span class="s2">(</span><span class="s1">lastError</span><span class="s2">)) {</span>
+            <span class="s1">derivative </span><span class="s2">= </span><span class="s8">0</span><span class="s2">;</span>
+        <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+            <span class="s1">derivative </span><span class="s2">= (</span><span class="s1">error </span><span class="s2">- </span><span class="s1">lastError</span><span class="s2">) / </span><span class="s1">deltaTime</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s7">// Update last error for next iteration</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">isX</span><span class="s2">) {</span>
+            <span class="s1">lastXError </span><span class="s2">= </span><span class="s1">error</span><span class="s2">;</span>
+        <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+            <span class="s1">lastYError </span><span class="s2">= </span><span class="s1">error</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s7">// Calculate PID output</span>
+        <span class="s0">double </span><span class="s1">proportional </span><span class="s2">= </span><span class="s1">kp </span><span class="s2">* </span><span class="s1">error</span><span class="s2">;</span>
+        <span class="s0">double </span><span class="s1">derivativeTerm </span><span class="s2">= </span><span class="s1">KdDrive </span><span class="s2">* </span><span class="s1">derivative</span><span class="s2">;</span>
+
+        <span class="s0">return </span><span class="s1">proportional </span><span class="s2">+ </span><span class="s1">derivativeTerm</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// Sets the motor powers according to the calculated powers for pathing methods</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">xPower the scaled x power</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">yPower the scaled y power</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">headingCorrection the scaled heading correction(it will not limit for you!)</span>
+    <span class="s0">private void </span><span class="s1">setMotorPowers</span><span class="s2">(</span><span class="s0">double </span><span class="s1">xPower</span><span class="s2">, </span><span class="s0">double </span><span class="s1">yPower</span><span class="s2">, </span><span class="s0">double </span><span class="s1">headingCorrection</span><span class="s2">) {</span>
+        <span class="s7">// Compensate for robot heading (field-centric control)</span>
+        <span class="s0">double </span><span class="s1">headingRad </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">toRadians</span><span class="s2">(</span><span class="s1">getAngle</span><span class="s2">());</span>
+
+        <span class="s7">// Apply field-centric transformation</span>
+        <span class="s0">double </span><span class="s1">forwardPower </span><span class="s2">=  </span><span class="s1">xPower </span><span class="s2">* </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">cos</span><span class="s2">(</span><span class="s1">headingRad</span><span class="s2">) - </span><span class="s1">yPower </span><span class="s2">* </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">sin</span><span class="s2">(</span><span class="s1">headingRad</span><span class="s2">);</span>
+        <span class="s0">double </span><span class="s1">strafePower  </span><span class="s2">= </span><span class="s1">xPower </span><span class="s2">* </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">sin</span><span class="s2">(</span><span class="s1">headingRad</span><span class="s2">) + </span><span class="s1">yPower </span><span class="s2">* </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">cos</span><span class="s2">(</span><span class="s1">headingRad</span><span class="s2">);</span>
+
+        <span class="s7">// Calculate mecanum motor powers</span>
+        <span class="s7">// Forward = all motors same direction, Strafe = diagonal pattern</span>
+        <span class="s0">double </span><span class="s1">flPower </span><span class="s2">= </span><span class="s1">forwardPower </span><span class="s2">+ </span><span class="s1">strafePower </span><span class="s2">+ </span><span class="s1">headingCorrection</span><span class="s2">;</span>
+        <span class="s0">double </span><span class="s1">frPower </span><span class="s2">= </span><span class="s1">forwardPower </span><span class="s2">- </span><span class="s1">strafePower </span><span class="s2">- </span><span class="s1">headingCorrection</span><span class="s2">;</span>
+        <span class="s0">double </span><span class="s1">blPower </span><span class="s2">= </span><span class="s1">forwardPower </span><span class="s2">- </span><span class="s1">strafePower </span><span class="s2">+ </span><span class="s1">headingCorrection</span><span class="s2">;</span>
+        <span class="s0">double </span><span class="s1">brPower </span><span class="s2">= </span><span class="s1">forwardPower </span><span class="s2">+ </span><span class="s1">strafePower </span><span class="s2">- </span><span class="s1">headingCorrection</span><span class="s2">;</span>
+
+        <span class="s7">// Find the largest motor power magnitude</span>
+        <span class="s0">double </span><span class="s1">maxMotorPower </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">max</span><span class="s2">(</span>
+                <span class="s1">Math</span><span class="s2">.</span><span class="s1">max</span><span class="s2">(</span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">flPower</span><span class="s2">), </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">frPower</span><span class="s2">)),</span>
+                <span class="s1">Math</span><span class="s2">.</span><span class="s1">max</span><span class="s2">(</span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">blPower</span><span class="s2">), </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">brPower</span><span class="s2">))</span>
+        <span class="s2">);</span>
+
+        <span class="s7">// Only scale if any motor power exceeds the limit</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">maxMotorPower </span><span class="s2">&gt; </span><span class="s1">AUTO_MAX_POWER</span><span class="s2">) {</span>
+            <span class="s0">double </span><span class="s1">scaleFactor </span><span class="s2">= </span><span class="s1">AUTO_MAX_POWER </span><span class="s2">/ </span><span class="s1">maxMotorPower</span><span class="s2">;</span>
+            <span class="s1">fl</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s1">flPower </span><span class="s2">* </span><span class="s1">scaleFactor</span><span class="s2">);</span>
+            <span class="s1">fr</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s1">frPower </span><span class="s2">* </span><span class="s1">scaleFactor</span><span class="s2">);</span>
+            <span class="s1">bl</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s1">blPower </span><span class="s2">* </span><span class="s1">scaleFactor</span><span class="s2">);</span>
+            <span class="s1">br</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s1">brPower </span><span class="s2">* </span><span class="s1">scaleFactor</span><span class="s2">);</span>
+        <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+            <span class="s7">// No scaling needed, powers are already within limits</span>
+            <span class="s1">fl</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s1">flPower</span><span class="s2">);</span>
+            <span class="s1">fr</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s1">frPower</span><span class="s2">);</span>
+            <span class="s1">bl</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s1">blPower</span><span class="s2">);</span>
+            <span class="s1">br</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s1">brPower</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+
+
+    <span class="s3">/// Sends any telemetry</span>
+    <span class="s0">private void </span><span class="s1">sendTelemetry</span><span class="s2">(</span><span class="s1">String label</span><span class="s2">, </span><span class="s0">double </span><span class="s1">xErr</span><span class="s2">, </span><span class="s0">double </span><span class="s1">yErr</span><span class="s2">, </span><span class="s0">double </span><span class="s1">xPow</span><span class="s2">, </span><span class="s0">double </span><span class="s1">yPow</span><span class="s2">, </span><span class="s0">double </span><span class="s1">headingCorr</span><span class="s2">) {</span>
+        <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addLine</span><span class="s2">(</span><span class="s6">&quot;Following a &quot; </span><span class="s2">+ </span><span class="s1">label</span><span class="s2">);</span>
+        <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;X Coord&quot;</span><span class="s2">, </span><span class="s1">getX</span><span class="s2">());</span>
+        <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;Y Coord&quot;</span><span class="s2">, </span><span class="s1">getY</span><span class="s2">());</span>
+        <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;Heading&quot;</span><span class="s2">, </span><span class="s1">getAngle</span><span class="s2">());</span>
+        <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;X Error&quot;</span><span class="s2">, </span><span class="s1">xErr</span><span class="s2">);</span>
+        <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;Y Error&quot;</span><span class="s2">, </span><span class="s1">yErr</span><span class="s2">);</span>
+        <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;X Power&quot;</span><span class="s2">, </span><span class="s1">xPow</span><span class="s2">);</span>
+        <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;Y Power&quot;</span><span class="s2">, </span><span class="s1">yPow</span><span class="s2">);</span>
+        <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">addData</span><span class="s2">(</span><span class="s6">&quot;Heading Corr&quot;</span><span class="s2">, </span><span class="s1">headingCorr</span><span class="s2">);</span>
+        <span class="s1">telemetry</span><span class="s2">.</span><span class="s1">update</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// Sets all powers to 0</span>
+    <span class="s0">private void </span><span class="s1">stopMotors</span><span class="s2">() {</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s1">DcMotorEnhanced motor </span><span class="s2">: </span><span class="s0">new </span><span class="s1">DcMotorEnhanced</span><span class="s2">[]{</span><span class="s1">fl</span><span class="s2">, </span><span class="s1">fr</span><span class="s2">, </span><span class="s1">bl</span><span class="s2">, </span><span class="s1">br</span><span class="s2">}) {</span>
+            <span class="s1">motor</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s8">0</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/** Checks if the robot is not moving. Takes in target coords to check distance again.</span>
+     <span class="s3">* Just checks if the distance to target is not updating</span>
+     <span class="s3">* </span><span class="s5">@param </span><span class="s3">targetX the x coordinate you want to go to</span>
+     <span class="s3">* </span><span class="s5">@param </span><span class="s3">targetY the y coordinate you want to go to</span>
+    <span class="s3">*/</span>
+    <span class="s0">private boolean </span><span class="s1">notStuck</span><span class="s2">(</span><span class="s0">double </span><span class="s1">targetX</span><span class="s2">, </span><span class="s0">double </span><span class="s1">targetY</span><span class="s2">) {</span>
+        <span class="s7">//Apply the pythagorean theorem for total distance moved in both directions</span>
+        <span class="s0">double </span><span class="s1">currentDistance </span><span class="s2">= </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">sqrt</span><span class="s2">(</span><span class="s1">Math</span><span class="s2">.</span><span class="s1">pow</span><span class="s2">(</span><span class="s1">targetX </span><span class="s2">- </span><span class="s1">getX</span><span class="s2">(), </span><span class="s8">2</span><span class="s2">) + </span><span class="s1">Math</span><span class="s2">.</span><span class="s1">pow</span><span class="s2">(</span><span class="s1">targetY </span><span class="s2">- </span><span class="s1">getY</span><span class="s2">(), </span><span class="s8">2</span><span class="s2">));</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">Math</span><span class="s2">.</span><span class="s1">abs</span><span class="s2">(</span><span class="s1">currentDistance </span><span class="s2">- </span><span class="s1">lastDistanceToTarget</span><span class="s2">) &gt; </span><span class="s8">5</span><span class="s2">) {</span>
+            <span class="s1">lastDistanceToTarget </span><span class="s2">= </span><span class="s1">currentDistance</span><span class="s2">;</span>
+            <span class="s1">stuckTimer</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+            <span class="s0">return true</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">return </span><span class="s1">stuckTimer</span><span class="s2">.</span><span class="s1">milliseconds</span><span class="s2">() &lt; </span><span class="s1">PATH_TIMEOUT_MS</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// Waits until the supplied condition is true</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">condition the supplier condition to wait for. Pass in with () -&gt; myCondition</span>
+    <span class="s0">protected void </span><span class="s1">waitUntil</span><span class="s2">(</span><span class="s1">@NonNull Supplier</span><span class="s2">&lt;</span><span class="s1">Boolean</span><span class="s2">&gt; </span><span class="s1">condition</span><span class="s2">) {</span>
+        <span class="s1">ElapsedTime timer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ElapsedTime</span><span class="s2">();</span>
+        <span class="s1">timer</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+        <span class="s0">while </span><span class="s2">(!</span><span class="s1">condition</span><span class="s2">.</span><span class="s1">get</span><span class="s2">() &amp;&amp; </span><span class="s1">opModeIsActive</span><span class="s2">()) {</span>
+            <span class="s7">// 0 is a way to get it to wait for the minimum 50ms</span>
+            <span class="s1">wait</span><span class="s2">(</span><span class="s8">0</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">///  Waits until the supplied condition is true, with a timeout option</span>
+    <span class="s3">/// </span><span class="s5">@param </span><span class="s3">condition the supplier condition to wait for. Pass in with () -&gt; myCondition</span>
+    <span class="s0">protected void </span><span class="s1">waitUntil</span><span class="s2">(</span><span class="s1">@NonNull Supplier</span><span class="s2">&lt;</span><span class="s1">Boolean</span><span class="s2">&gt; </span><span class="s1">condition</span><span class="s2">, </span><span class="s0">long </span><span class="s1">timeoutMs</span><span class="s2">) {</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">timeoutMs </span><span class="s2">&lt;= </span><span class="s8">0</span><span class="s2">) </span><span class="s0">return</span><span class="s2">;</span>
+
+        <span class="s1">ElapsedTime timer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ElapsedTime</span><span class="s2">();</span>
+        <span class="s1">timer</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+        <span class="s0">while </span><span class="s2">(!</span><span class="s1">condition</span><span class="s2">.</span><span class="s1">get</span><span class="s2">() &amp;&amp; </span><span class="s1">opModeIsActive</span><span class="s2">() &amp;&amp; </span><span class="s1">timer</span><span class="s2">.</span><span class="s1">milliseconds</span><span class="s2">() &lt; </span><span class="s1">timeoutMs</span><span class="s2">) {</span>
+            <span class="s7">// 0 is a way to get it to wait for the minimum 50ms</span>
+            <span class="s1">wait</span><span class="s2">(</span><span class="s8">0</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+<span class="s2">}</span></pre>
+</body>
+</html>

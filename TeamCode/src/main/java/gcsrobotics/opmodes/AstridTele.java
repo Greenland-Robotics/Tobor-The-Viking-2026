@@ -11,6 +11,7 @@ public class AstridTele extends TeleOpBase {
     @Override
     public void inInit(){
     fl.setDirection(DcMotorSimple.Direction.REVERSE);
+
     }
     @Override
     public void run() {runLoop();}

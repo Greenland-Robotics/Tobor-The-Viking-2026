@@ -1,10 +1,12 @@
 package gcsrobotics.opmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 
 @TeleOp(name="CRServoTest")
+@Disabled
 public class CRServoTest extends LinearOpMode {
 
     private CRServo feeder;

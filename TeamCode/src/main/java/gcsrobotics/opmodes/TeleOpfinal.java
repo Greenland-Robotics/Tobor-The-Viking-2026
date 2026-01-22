@@ -171,65 +171,64 @@ public class TeleOpfinal extends TeleOpBase {
                 launcher.setVelocity(MAXIMUM_VELOCITY*.6);
             }
             else if (gamepad2.x){
-                launcher.setVelocity(MAXIMUM_VELOCITY*.81);
+                launcher.setVelocity(MAXIMUM_VELOCITY*.75);
             }
             else if (gamepad2.a){
                 launcher.setVelocity(0);
             }
-
             launcher.getCurrentPosition();
-            double[] limeReadings = getlightlimeresults();
-            if (limeReadings != null) {
-                double lastTx = limeReadings[0];
-                double lastTy = limeReadings[1];
-                double distanceFromGoal = limeReadings[2];
-
-                telemetry.addData("tx", lastTx);
-                telemetry.addData("ty", lastTy);
-                telemetry.addData("Distance from AprilTag", distanceFromGoal);
+//            double[] limeReadings = getlightlimeresults();
+//            if (limeReadings != null) {
+//                double lastTx = limeReadings[0];
+//                double lastTy = limeReadings[1];
+//                double distanceFromGoal = limeReadings[2];
+//
+//                telemetry.addData("tx", lastTx);
+//                telemetry.addData("ty", lastTy);
+//                telemetry.addData("Distance from AprilTag", distanceFromGoal);
+////                light.setPosition(0);
+//                if (Math.abs(lastTx) > Constants.limelightTargetThreshold){
+//                    if (lastTx < -1) {
+//                        light.setPosition(0.277);
+//                        telemetry.addLine("MOVE RIGHT");
+//                    } else if (lastTx > 1) {
+//                        light.setPosition(0.611);
+//                        telemetry.addLine("MOVE LEFT");
+//                    }
+//                } else {
+//                    light.setPosition(0.5);
+//                }
+//            } else {
 //                light.setPosition(0);
-                if (Math.abs(lastTx) > Constants.limelightTargetThreshold){
-                    if (lastTx < -1) {
-                        light.setPosition(0.277);
-                        telemetry.addLine("MOVE RIGHT");
-                    } else if (lastTx > 1) {
-                        light.setPosition(0.611);
-                        telemetry.addLine("MOVE LEFT");
-                    }
-                } else {
-                    light.setPosition(0.5);
-                }
-            } else {
-                light.setPosition(0);
-            }
+//            }
             telemetry.update();
         }
     }
 
 
-    public double[] getlightlimeresults() {
-        LLResult result = limelight.getLatestResult();
-        if (result != null && result.isValid()) {
-            List<LLResultTypes.FiducialResult> resultS = result.getFiducialResults();
-            for (LLResultTypes.FiducialResult individualAprilTags : resultS){
-                if (individualAprilTags.getFiducialId() == 24 || individualAprilTags.getFiducialId() == 20){
-                    // red or blue area
-                    //view paper for what each means
-                    double tx = result.getTx();
-                    double ty = result.getTy();
-                    double h2 = (Constants.targetAprilTagHeight + Constants.targetAprilTagSpaceToCenter) - Constants.limelightMountHeight;
-                    double d = h2/Math.tan(ty);
-                    double horiz = d*Math.tan(tx);
+//    public double[] getlightlimeresults() {
+//        LLResult result = limelight.getLatestResult();
+//        if (result != null && result.isValid()) {
+//            List<LLResultTypes.FiducialResult> resultS = result.getFiducialResults();
+//            for (LLResultTypes.FiducialResult individualAprilTags : resultS){
+//                if (individualAprilTags.getFiducialId() == 24 || individualAprilTags.getFiducialId() == 20){
+//                    // red or blue area
+//                    //view paper for what each means
+//                    double tx = result.getTx();
+//                    double ty = result.getTy();
+//                    double h2 = (Constants.targetAprilTagHeight + Constants.targetAprilTagSpaceToCenter) - Constants.limelightMountHeight;
+//                    double d = h2/Math.tan(ty);
+//                    double horiz = d*Math.tan(tx);
+//
+//                    double normalizedX = Math.atan2(horiz + Constants.limelightMountOffset, d);
+//                    return new double[]{normalizedX, ty, d};
+//
+//                }
 
-                    double normalizedX = Math.atan2(horiz + Constants.limelightMountOffset, d);
-                    return new double[]{normalizedX, ty, d};
-
-                }
-
-            }
-
-        }
-        return null;
-    }
+//            }
+//
+//        }
+//        return null;
+//    }
 }
 

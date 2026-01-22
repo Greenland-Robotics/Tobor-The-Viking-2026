@@ -324,8 +324,8 @@ public abstract class AutoBase extends OpModeBase {
         double headingRad = Math.toRadians(getAngle());
 
         // Apply field-centric transformation
-        double forwardPower =  xPower * Math.cos(headingRad) + yPower * Math.sin(headingRad);
-        double strafePower  = -xPower * Math.sin(headingRad) + yPower * Math.cos(headingRad);
+        double forwardPower =  xPower * Math.cos(headingRad) - yPower * Math.sin(headingRad);
+        double strafePower  = xPower * Math.sin(headingRad) + yPower * Math.cos(headingRad);
 
         // Calculate mecanum motor powers
         // Forward = all motors same direction, Strafe = diagonal pattern
@@ -422,4 +422,5 @@ public abstract class AutoBase extends OpModeBase {
             wait(0);
         }
     }
+
 }

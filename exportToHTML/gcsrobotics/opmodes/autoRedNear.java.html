@@ -1,0 +1,115 @@
+<html>
+<head>
+<title>autoRedNear.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #5f826b; font-style: italic;}
+.s4 { color: #67a37c; font-style: italic;}
+.s5 { color: #6aab73;}
+.s6 { color: #2aacb8;}
+.s7 { color: #7a7e85;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+autoRedNear.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">gcsrobotics</span><span class="s2">.</span><span class="s1">opmodes</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">com</span><span class="s2">.</span><span class="s1">qualcomm</span><span class="s2">.</span><span class="s1">robotcore</span><span class="s2">.</span><span class="s1">eventloop</span><span class="s2">.</span><span class="s1">opmode</span><span class="s2">.</span><span class="s1">Autonomous</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">com</span><span class="s2">.</span><span class="s1">qualcomm</span><span class="s2">.</span><span class="s1">robotcore</span><span class="s2">.</span><span class="s1">hardware</span><span class="s2">.</span><span class="s1">CRServo</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">com</span><span class="s2">.</span><span class="s1">qualcomm</span><span class="s2">.</span><span class="s1">robotcore</span><span class="s2">.</span><span class="s1">hardware</span><span class="s2">.</span><span class="s1">DcMotor</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">com</span><span class="s2">.</span><span class="s1">qualcomm</span><span class="s2">.</span><span class="s1">robotcore</span><span class="s2">.</span><span class="s1">hardware</span><span class="s2">.</span><span class="s1">DcMotorEx</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">com</span><span class="s2">.</span><span class="s1">qualcomm</span><span class="s2">.</span><span class="s1">robotcore</span><span class="s2">.</span><span class="s1">hardware</span><span class="s2">.</span><span class="s1">Servo</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">com</span><span class="s2">.</span><span class="s1">qualcomm</span><span class="s2">.</span><span class="s1">robotcore</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">ElapsedTime</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">gcsrobotics</span><span class="s2">.</span><span class="s1">framework</span><span class="s2">.</span><span class="s1">AutoBase</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">*</span>
+ <span class="s3">* </span><span class="s4">@author </span><span class="s3">Daniel Sabalakov- Timmy and Luke and Mack. and idk prob someone else too (PLEASE CONTACT ME (daniel) IF YOU HAVE ANY QUESTIONS)</span>
+ <span class="s3">*/</span>
+<span class="s1">@Autonomous</span><span class="s2">(</span><span class="s1">name</span><span class="s2">=</span><span class="s5">&quot;autoRedNear&quot;</span><span class="s2">)</span>
+<span class="s0">public class </span><span class="s1">autoRedNear </span><span class="s0">extends </span><span class="s1">AutoBase </span><span class="s2">{</span>
+    <span class="s0">public static double </span><span class="s1">LAUNCHER_VELOCITY </span><span class="s2">= </span><span class="s6">0</span><span class="s2">;</span>
+    <span class="s0">public static double </span><span class="s1">KICKER_POSITION_UP </span><span class="s2">= </span><span class="s6">0.5</span><span class="s2">;</span>
+    <span class="s0">public static double </span><span class="s1">INTAKE_RIGHT </span><span class="s2">= -</span><span class="s6">1</span><span class="s2">;</span>
+    <span class="s0">public static double </span><span class="s1">GROUND_INTAKE_SPEED </span><span class="s2">= -</span><span class="s6">1</span><span class="s2">;</span>
+    <span class="s0">public static double </span><span class="s1">target_launcher_speed </span><span class="s2">= </span><span class="s6">1200</span><span class="s2">;</span>
+    <span class="s0">public static int </span><span class="s1">targetAngle </span><span class="s2">= </span><span class="s6">0</span><span class="s2">;</span>
+
+
+    <span class="s0">public </span><span class="s1">DcMotorEx launcher</span><span class="s2">;</span>
+    <span class="s0">public </span><span class="s1">Servo kicker</span><span class="s2">;</span>
+    <span class="s0">public </span><span class="s1">CRServo left_servo_feeder</span><span class="s2">, </span><span class="s1">right_servo_feeder</span><span class="s2">;</span>
+    <span class="s0">public </span><span class="s1">DcMotor intake</span><span class="s2">;</span>
+    <span class="s0">public </span><span class="s1">ElapsedTime intakeTime </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ElapsedTime</span><span class="s2">();</span>
+    <span class="s0">public boolean </span><span class="s1">intakeDone </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+    <span class="s0">boolean </span><span class="s1">kickerActive </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+    <span class="s1">ElapsedTime kickerTimer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ElapsedTime</span><span class="s2">();</span>
+    <span class="s0">public double </span><span class="s1">SHOOTER_VELOCITY </span><span class="s2">= </span><span class="s6">1085</span><span class="s2">;</span>
+    <span class="s0">public int </span><span class="s1">TARGET_X </span><span class="s2">= </span><span class="s6">50</span><span class="s2">;</span>
+    <span class="s0">public int </span><span class="s1">target_Y </span><span class="s2">= </span><span class="s6">0</span><span class="s2">;</span>
+    <span class="s1">@Override</span>
+    <span class="s0">protected void </span><span class="s1">runInit</span><span class="s2">() {</span>
+        <span class="s7">//call a super incase there is super mumbo jumbo AutoBase Abstraction</span>
+
+
+        <span class="s1">launcher </span><span class="s2">= </span><span class="s1">hardwareMap</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">DcMotorEx</span><span class="s2">.</span><span class="s0">class</span><span class="s2">, </span><span class="s5">&quot;launcher&quot;</span><span class="s2">);</span>
+        <span class="s1">launcher</span><span class="s2">.</span><span class="s1">setMode</span><span class="s2">(</span><span class="s1">DcMotor</span><span class="s2">.</span><span class="s1">RunMode</span><span class="s2">.</span><span class="s1">RUN_USING_ENCODER</span><span class="s2">);</span>
+
+        <span class="s1">kicker </span><span class="s2">= </span><span class="s1">hardwareMap</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">Servo</span><span class="s2">.</span><span class="s0">class</span><span class="s2">, </span><span class="s5">&quot;kicker&quot;</span><span class="s2">);</span>
+        <span class="s1">left_servo_feeder </span><span class="s2">= </span><span class="s1">hardwareMap</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">CRServo</span><span class="s2">.</span><span class="s0">class</span><span class="s2">, </span><span class="s5">&quot;left_servo_feeder&quot;</span><span class="s2">);</span>
+        <span class="s1">right_servo_feeder </span><span class="s2">= </span><span class="s1">hardwareMap</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">CRServo</span><span class="s2">.</span><span class="s0">class</span><span class="s2">, </span><span class="s5">&quot;right_servo_feeder&quot;</span><span class="s2">);</span>
+        <span class="s1">intake </span><span class="s2">= </span><span class="s1">hardwareMap</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">DcMotor</span><span class="s2">.</span><span class="s0">class</span><span class="s2">, </span><span class="s5">&quot;intake&quot;</span><span class="s2">);</span>
+
+        <span class="s1">left_servo_feeder</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s6">0</span><span class="s2">);</span>
+        <span class="s1">right_servo_feeder</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s6">0</span><span class="s2">);</span>
+
+    <span class="s2">}</span>
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">run</span><span class="s2">() {</span>
+<span class="s7">//        while (opModeIsActive()){</span>
+<span class="s7">//            runSequence();</span>
+<span class="s7">//        }</span>
+        <span class="s1">runSequence</span><span class="s2">();</span>
+    <span class="s2">}</span>
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">runSequence</span><span class="s2">() {</span>
+        <span class="s7">//commands get run here...</span>
+        <span class="s7">//kicker.setPosition(0.5);</span>
+        <span class="s0">while </span><span class="s2">(</span><span class="s1">opModeIsActive</span><span class="s2">()) {</span>
+            <span class="s1">kicker</span><span class="s2">.</span><span class="s1">setPosition</span><span class="s2">(</span><span class="s6">0</span><span class="s2">);</span>
+            <span class="s1">launcher</span><span class="s2">.</span><span class="s1">setVelocity</span><span class="s2">(</span><span class="s1">SHOOTER_VELOCITY</span><span class="s2">);</span>
+            <span class="s1">path</span><span class="s2">(</span><span class="s1">TARGET_X</span><span class="s2">, </span><span class="s1">target_Y</span><span class="s2">, </span><span class="s1">Axis</span><span class="s2">.</span><span class="s1">Y</span><span class="s2">);</span>
+            <span class="s0">if </span><span class="s2">(!</span><span class="s1">kickerActive</span><span class="s2">) {</span>
+                <span class="s1">kickerTimer</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+            <span class="s2">}</span>
+            <span class="s1">kickerActive </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">kickerActive </span><span class="s2">&amp;&amp; </span><span class="s1">kickerTimer</span><span class="s2">.</span><span class="s1">milliseconds</span><span class="s2">() &gt; </span><span class="s6">4000</span><span class="s2">) {</span>
+                <span class="s1">kicker</span><span class="s2">.</span><span class="s1">setPosition</span><span class="s2">(</span><span class="s6">0.5</span><span class="s2">);   </span><span class="s7">// Move Down</span>
+                <span class="s1">kickerTimer</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+                <span class="s0">while </span><span class="s2">(</span><span class="s1">kickerTimer</span><span class="s2">.</span><span class="s1">milliseconds</span><span class="s2">() &lt; </span><span class="s6">5000</span><span class="s2">) {</span>
+                    <span class="s1">right_servo_feeder</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(-</span><span class="s6">0.1</span><span class="s2">);</span>
+                    <span class="s1">left_servo_feeder</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(</span><span class="s6">0.1</span><span class="s2">);</span>
+                    <span class="s1">intake</span><span class="s2">.</span><span class="s1">setPower</span><span class="s2">(-</span><span class="s6">0.5</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s1">turn </span><span class="s2">(-</span><span class="s6">41</span><span class="s2">);</span>
+                <span class="s1">path</span><span class="s2">(</span><span class="s6">42</span><span class="s2">,-</span><span class="s6">4</span><span class="s2">);</span>
+                <span class="s1">path</span><span class="s2">(</span><span class="s6">21</span><span class="s2">,</span><span class="s6">19</span><span class="s2">);</span>
+                <span class="s1">wait</span><span class="s2">(</span><span class="s6">1000</span><span class="s2">);</span>
+                <span class="s1">path</span><span class="s2">(</span><span class="s6">50</span><span class="s2">,</span><span class="s6">0</span><span class="s2">);</span>
+                <span class="s1">turn</span><span class="s2">(</span><span class="s6">0</span><span class="s2">);</span>
+
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

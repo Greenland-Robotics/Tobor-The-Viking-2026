@@ -1,7 +1,5 @@
 package gcsrobotics.opmodes;
 
-import gcsrobotics.framework.AutoBase;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,14 +7,15 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="autoRedANDBLUEFar")
-public class autoRedANDBLUEFar extends AutoBase {
+import gcsrobotics.framework.AutoBase;
+@Autonomous(name="RedFarCenterAuto")
+public class RedFarCenterAuto extends AutoBase {
     public static double LAUNCHER_VELOCITY = 0;
     public static double KICKER_POSITION_UP = 0.5;
     public static double INTAKE_RIGHT = -1;
     public static double GROUND_INTAKE_SPEED = -1;
     public static double target_launcher_speed = 1000;
-    public static int targetAngle = 0;
+    public static int targetAngle = -41;
 
 
     public DcMotorEx launcher;
@@ -27,9 +26,9 @@ public class autoRedANDBLUEFar extends AutoBase {
     public boolean intakeDone = false;
     boolean kickerActive = false;
     ElapsedTime kickerTimer = new ElapsedTime();
-    public int TARGET_X = -12;
-    public int target_Y = 0;
-    public double SHOOTER_VELOCITY = 1700;
+    public int TARGET_X = -70;
+    public int target_Y = 2;
+    public double SHOOTER_VELOCITY = 1050;
 
     /// The code that runs during start
 
@@ -56,25 +55,29 @@ public class autoRedANDBLUEFar extends AutoBase {
 
     @Override
     public void runSequence() {
-        while (opModeIsActive()) {
-            kicker.setPosition(0);
-            launcher.setVelocity(SHOOTER_VELOCITY);
-            if (!kickerActive) {
-                kickerTimer.reset();
-            }
-            kickerActive = true;
-            if (kickerActive && kickerTimer.milliseconds() > 6000) {
-                kicker.setPosition(0.5);   // Move Down
-                right_servo_feeder.setPower(-1);
-                left_servo_feeder.setPower(1);
-                kickerTimer.reset();
-                while (kickerTimer.milliseconds() < 5000) {
-                    right_servo_feeder.setPower(-0.25);
-                    left_servo_feeder.setPower(0.25);
-                    intake.setPower(-0.5);
-                }
+            while (opModeIsActive()) {
+                kicker.setPosition(0);
                 path(TARGET_X, target_Y);
+                launcher.setVelocity(SHOOTER_VELOCITY);
+                if (!kickerActive) {
+                    kickerTimer.reset();
+                }
+                kickerActive = true;
+                if (kickerActive && kickerTimer.milliseconds() > 5000) {
+                    turn(targetAngle);
+                    kicker.setPosition(0.5);   // Move Down
+                    right_servo_feeder.setPower(-1);
+                    left_servo_feeder.setPower(1);
+                    kickerTimer.reset();
+                    while (kickerTimer.milliseconds() > 1000 && kickerTimer.milliseconds() < 6000) {
+                        right_servo_feeder.setPower(-0.15);
+                        left_servo_feeder.setPower(0.1);
+                        intake.setPower(-0.5);
+                    }
+                    while (kickerTimer.milliseconds() > 6000) {
+                        path(-63, 12);
+                    }
+                }
             }
         }
     }
-}

@@ -31,14 +31,13 @@ public class autoRedNear extends AutoBase {
     public boolean intakeDone = false;
     boolean kickerActive = false;
     ElapsedTime kickerTimer = new ElapsedTime();
-    public double SHOOTER_VELOCITY = 1000;
-    public int TARGET_X = 50;
-    public int target_Y = 0;
+    public double SHOOTER_VELOCITY = 1085;
+
+    //public int TARGET_X = 50;
+    //public int target_Y = 0;
     @Override
     protected void runInit() {
         //call a super incase there is super mumbo jumbo AutoBase Abstraction
-        super.runInit();
-
 
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -52,37 +51,50 @@ public class autoRedNear extends AutoBase {
         right_servo_feeder.setPower(0);
 
     }
+
     @Override
     public void run() {
-//        while (opModeIsActive()){
+        path(50, 0);
 //            runSequence();
 //        }
         runSequence();
     }
+
     @Override
     public void runSequence() {
         //commands get run here...
-        //kicker.setPosition(0.5);
+        kicker.setPosition(0.5);
         while (opModeIsActive()) {
             kicker.setPosition(0);
             launcher.setVelocity(SHOOTER_VELOCITY);
-            path(TARGET_X, target_Y, Axis.Y);
             if (!kickerActive) {
                 kickerTimer.reset();
             }
             kickerActive = true;
             if (kickerActive && kickerTimer.milliseconds() > 4000) {
                 kicker.setPosition(0.5);   // Move Down
-                right_servo_feeder.setPower(-1);
-                left_servo_feeder.setPower(1);
                 kickerTimer.reset();
                 while (kickerTimer.milliseconds() < 5000) {
                     right_servo_feeder.setPower(-0.1);
                     left_servo_feeder.setPower(0.1);
                     intake.setPower(-0.5);
                 }
-                target_Y = 10;
+                kicker.setPosition(0);
+                turn(130);
+                path(38, 3);
+                wait(1000);
+                path(22,21);
+                path(50,0);
+                kickerActive = true;
+                if (kickerActive && kickerTimer.milliseconds() > 4000) {
+                    kicker.setPosition(0.5);   // Move Down
+                    kickerTimer.reset();
+                    while (kickerTimer.milliseconds() < 5000) {
+                        right_servo_feeder.setPower(-0.1);
+                        left_servo_feeder.setPower(0.1);
+                        intake.setPower(-0.5);
+
             }
         }
     }
-}
+}}}
